@@ -45,3 +45,34 @@ target_compile_definitions(AE8 PUBLIC
 target_link_libraries(AE8
   PRIVATE juce::juce_audio_utils
   PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
+
+# ---------------------------------------------------------------- AE-8 TUNE
+juce_add_plugin(AE8TUNE
+  COMPANY_NAME "AE-8"
+  PRODUCT_NAME "AE-8 TUNE"
+  PLUGIN_MANUFACTURER_CODE Aeau
+  PLUGIN_CODE Ae8t
+  IS_SYNTH FALSE
+  NEEDS_MIDI_INPUT FALSE
+  NEEDS_MIDI_OUTPUT FALSE
+  IS_MIDI_EFFECT FALSE
+  EDITOR_WANTS_KEYBOARD_FOCUS FALSE
+  COPY_PLUGIN_AFTER_BUILD FALSE
+  VST3_CATEGORIES Fx "Pitch Shift"
+  FORMATS ${AE8_FORMATS})
+
+juce_generate_juce_header(AE8TUNE)
+
+target_sources(AE8TUNE PRIVATE
+  Tune/TuneProcessor.cpp
+  Tune/TuneEditor.cpp)
+
+target_compile_definitions(AE8TUNE PUBLIC
+  JUCE_WEB_BROWSER=0
+  JUCE_USE_CURL=0
+  JUCE_VST3_CAN_REPLACE_VST2=0
+  JUCE_DISPLAY_SPLASH_SCREEN=0)
+
+target_link_libraries(AE8TUNE
+  PRIVATE juce::juce_audio_utils
+  PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)

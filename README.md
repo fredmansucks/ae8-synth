@@ -104,7 +104,7 @@ Name tags: FM = 2-operator FM (DX style), ARP = uses the arpeggiator, JP = Jupit
 
 ## Building it yourself
 
-The repo includes a GitHub Actions workflow (`.github/workflows/build-windows.yml`). Push the folder to a GitHub repo and the **Actions** tab builds the VST3 + standalone and offers them as a download.
+The repo includes a GitHub Actions workflow (`.github/workflows/build-windows.yml`). Push the folder to a GitHub repo and the **Actions** tab builds both plugins (VST3 + standalone) and offers them as a download.
 
 To build locally on Windows instead, install **Visual Studio 2022 Community** (with "Desktop development with C++") and **Git**, then in this folder run:
 
@@ -126,3 +126,26 @@ The plugin ends up in `build\AE8_artefacts\Release\VST3\`.
 - `tests/render_presets.cpp`: renders every preset to a WAV file offline (`g++ -std=c++17 -O2 tests/render_presets.cpp`).
 
 Built with JUCE 8 (AGPLv3 / commercial license). Fine for personal use. If you want to sell it, check JUCE's licensing first.
+
+
+---
+
+# AE-8 TUNE
+
+Real-time vocal pitch correction (VST3, audio effect) with built-in voices, distortion, delay and reverb.
+
+| Section | Controls |
+|---|---|
+| **Pitch** | Key (12 buttons; the root is cyan, scale notes are lit, the note you're singing is outlined orange), scale (Chromatic, Major, Minor, Harmonic Minor, Pentatonic Major/Minor, Blues), live note readout, cents meter, and a scrolling graph of your pitch (white dots) against the corrected pitch (orange line) |
+| **Tune** | Speed (0 = instant hard tune, up to 400 ms for natural), Amount, Humanize (keeps vibrato), Shift (±12 semitones) |
+| **Voices** | Double (two detuned, slightly delayed copies panned left/right), Harmony (in-key harmony: +3rd, +5th, +3rd+5th, −octave, −3rd) |
+| **Distortion** | Drive, Tone, Mix |
+| **Delay** | Tempo-synced time (1/16 to 1/2), feedback, mix |
+| **Reverb** | Size, Mix |
+| **Output** | Dry/Wet, Output level |
+
+**Styles** (the STYLE menu; they never change your key or scale): Classic, Hard Tune, Natural, Robot, Duet, Big Harmony, Modern Rap, Melodic Trap, Lo-Fi Phone, Space Echo, Octave Monster, Fifth Up Choir.
+
+How it works: pitch is detected with the YIN algorithm about every 4 ms and snapped to the nearest note in your key, gliding there at the Speed you set. The voice is re-pitched with pitch-synchronous overlap-add (PSOLA), which moves the pitch without the "chipmunk" formant shift. Latency is about 34 ms; Ableton compensates for it automatically on playback. For live tracking, enable Reduced Latency When Monitoring in Ableton's Options menu, or monitor dry.
+
+Sources: `Tune/TuneEngine.h` (all DSP), `Tune/TuneProcessor.*`, `Tune/TuneEditor.*`, shared look in `Shared/Brand.h`. Offline test: `g++ -std=c++17 -O2 Tune/tests/tune_test.cpp`.
