@@ -1,15 +1,15 @@
-# AE-8 Analog Poly
+# AE-8 POLY
 
-A 12-voice virtual-analog polysynth VST3 for Ableton Live, built around the sound of the classic 70s/80s polys: Roland Jupiter-8 and Juno-60/106, Sequential Prophet-5, Oberheim OB-X, Minimoog, Yamaha CS-80, SH-101 and friends. It ships with 50 factory presets.
+A 12-voice polysynth VST3 for Ableton Live by AE-8. Analog-style oscillators and filters in the spirit of the classic 70s/80s polys, a 2-operator FM engine for DX-style keys, bells and basses, and a tempo-synced arpeggiator. 67 factory presets.
 
 ## Install in Ableton (Windows)
 
-1. Copy the `AE-8 Analog Poly.vst3` folder into `C:\Program Files\Common Files\VST3\`.
+1. Copy the `AE-8 POLY.vst3` folder into `C:\Program Files\Common Files\VST3\`.
 2. In Ableton go to **Options → Preferences → Plug-Ins**, turn on **Use VST3 Plug-In System Folders** and click **Rescan**.
-3. It shows up under **Plug-Ins → VST3 → AE Audio → AE-8 Analog Poly**. Drag it onto a MIDI track.
+3. It shows up under **Plug-Ins → VST3 → AE-8 → AE-8 POLY**. Drag it onto a MIDI track.
 4. Pick presets from the **PROGRAM** menu at the top of the plugin, or with the `<` `>` buttons.
 
-`AE-8 Analog Poly.exe` is a standalone version you can play without Ableton (Options → audio/MIDI settings).
+`AE-8 POLY.exe` is a standalone version you can play without Ableton (Options → audio/MIDI settings).
 
 ## What's inside
 
@@ -20,9 +20,11 @@ A 12-voice virtual-analog polysynth VST3 for Ableton Live, built around the soun
 | **Modulation** | Cross-mod (Osc 2 → Osc 1 FM, Jupiter style), pulse width, PWM from LFO, filter env → Osc 2 pitch (sync sweeps) |
 | **Mixer** | Juno-style sub oscillator (square, 1 oct down), white noise, high-pass filter |
 | **Filter** | LP 24 dB ladder (Moog/Jupiter/Juno style, self-oscillates at max reso), LP/BP/HP 12 dB state-variable (Oberheim SEM style); cutoff, resonance, bipolar env amount, key tracking, LFO amount, velocity, drive |
-| **Filter envelope** | ADSR with analog-style curves |
+| **FM** | Osc 2 phase-modulates Osc 1 (DX style): amount, ratio (free or 0.5–14), envelope amount (uses the filter envelope as the modulator envelope), velocity |
+| **Filter / FM envelope** | ADSR with analog-style curves |
 | **Amp envelope** | ADSR + velocity sensitivity |
 | **LFO** | Triangle / Sine / Saw / Square / Sample & Hold, rate 0.05–30 Hz, delay (fade-in per note), vibrato depth, mod-wheel vibrato |
+| **Arpeggiator** | Up, Down, Up/Down, Random, As Played; 1/4 to 1/32 incl. triplets and dotted 1/8; 1–4 octaves; gate; latch. Follows Ableton's tempo and locks to the grid while playing |
 | **Voice** | Poly (12 voices) / Mono (legato, last-note priority) / Unison (6 stacked voices), unison detune, glide, pitch-bend range, analog drift, stereo spread |
 | **Effects** | Juno-style BBD chorus (I, II, I+II), ping-pong tape-ish delay, reverb, master volume |
 
@@ -30,7 +32,7 @@ Responds to velocity, pitch bend, mod wheel (CC1) and sustain pedal (CC64). Ever
 
 ## Factory presets
 
-Name tags: JP = Jupiter-8, JU = Juno, P5 = Prophet-5, OB = Oberheim, MM = Minimoog, CS = CS-80, 101 = SH-101, OD = Odyssey, PS = Polysix. These are tributes to those instruments' sounds and are not affiliated with their makers.
+Name tags: FM = 2-operator FM (DX style), ARP = uses the arpeggiator, JP = Jupiter-8, JU = Juno, P5 = Prophet-5, OB = Oberheim, MM = Minimoog, CS = CS-80, 101 = SH-101, OD = Odyssey, PS = Polysix. These are tributes to those instruments' sounds and are not affiliated with their makers.
 
 01. PAD JU Warm Strings Pad
 02. PAD JU PWM Dream
@@ -82,6 +84,23 @@ Name tags: JP = Jupiter-8, JU = Juno, P5 = Prophet-5, OB = Oberheim, MM = Minimo
 48. FX OD Laser Zap
 49. FX JP Sample & Hold
 50. FX CS Wind & Noise
+51. FM Tine E.Piano
+52. FM Bell Piano
+53. FM Solid Bass
+54. FM Slap Bass
+55. FM Glass Bells
+56. FM Tubular Bells
+57. FM Marimba
+58. FM Brass Section
+59. FM Digital Clav
+60. FM Reed Organ
+61. FM Crystal Pad
+62. FM Log Drum
+63. FM Koto Pluck
+64. ARP FM Bell Sequence
+65. ARP JU Pulse Arp
+66. ARP OB Octave Bass
+67. ARP FM Random Data
 
 ## Building it yourself
 
@@ -99,7 +118,8 @@ The plugin ends up in `build\AE8_artefacts\Release\VST3\`.
 
 ## Code layout
 
-- `Source/SynthEngine.h`: all of the DSP (oscillators, filters, envelopes, voices, effects). It is plain C++ with no framework.
+- `Source/SynthEngine.h`: all of the DSP (oscillators, FM, filters, envelopes, voices, effects). It is plain C++ with no framework.
+- `Source/Arp.h`: the arpeggiator.
 - `Source/ParamDefs.h`: the parameter list (ranges and defaults).
 - `Source/Presets.h`: the 50 presets, each one written as changes from the INIT patch. Add your own here.
 - `Source/PluginProcessor.*` and `Source/PluginEditor.*`: the JUCE plugin wrapper and the interface.

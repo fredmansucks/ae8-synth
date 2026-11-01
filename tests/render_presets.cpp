@@ -1,6 +1,7 @@
 // Offline test: renders every factory preset to a WAV and reports levels.
 #include "../Source/SynthEngine.h"
 #include "../Source/Presets.h"
+#include "../Source/Arp.h"
 #include <cstdio>
 #include <string>
 #include <cmath>
@@ -61,16 +62,43 @@ int main (int argc, char** argv)
         std::vector<float> L ((size_t) N), R ((size_t) N);
         std::sort (ev.begin(), ev.end(), [] (const Ev& a, const Ev& b) { return a.t < b.t; });
         size_t ei = 0;
+        const bool arpOn = e.getParam (ARP_ON) > 0.5f;
+        Arpeggiator arp; arp.mode = (int) e.getParam (ARP_MODE); arp.rate = (int) e.getParam (ARP_RATE);
+        arp.octaves = (int) e.getParam (ARP_OCT); arp.gate = e.getParam (ARP_GATE);
+        const double bps = 120.0 / 60.0 / sr; double beat = 0;
+        int arpNotes = 0;
         for (int pos = 0; pos < N; pos += block)
         {
             const int len = std::min (block, N - pos);
+            if (! arpOn)
+            {
+                while (ei < ev.size() && ev[ei].t * sr < pos + len)
+                {
+                    if (ev[ei].on) e.noteOn (ev[ei].note, 0.85f); else e.noteOff (ev[ei].note);
+                    ++ei;
+                }
+                e.render (L.data() + pos, R.data() + pos, len);
+                continue;
+            }
+            std::vector<ArpEvent> out; int s0 = 0;
             while (ei < ev.size() && ev[ei].t * sr < pos + len)
             {
-                if (ev[ei].on) e.noteOn (ev[ei].note, 0.85f); else e.noteOff (ev[ei].note);
+                const int at = std::max (s0, (int) (ev[ei].t * sr) - pos);
+                arp.advance (s0, std::max (s0 + 1, at), beat, bps, false, out); s0 = std::max (s0 + 1, at);
+                if (ev[ei].on) arp.noteOn (ev[ei].note, 0.85f); else arp.noteOff (ev[ei].note);
                 ++ei;
             }
-            e.render (L.data() + pos, R.data() + pos, len);
+            if (s0 < len) arp.advance (s0, len, beat, bps, false, out);
+            beat += len * bps;
+            int rp = 0;
+            for (auto& a : out)
+            {
+                if (a.pos > rp) { e.render (L.data() + pos + rp, R.data() + pos + rp, a.pos - rp); rp = a.pos; }
+                if (a.on) { e.noteOn (a.note, a.vel); ++arpNotes; } else e.noteOff (a.note);
+            }
+            if (rp < len) e.render (L.data() + pos + rp, R.data() + pos + rp, len - rp);
         }
+        if (arpOn) std::printf ("    arp notes played: %d\n", arpNotes);
         double peak = 0, sum = 0; bool nan = false;
         for (int i = 0; i < N; ++i)
         {

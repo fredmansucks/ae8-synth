@@ -16,6 +16,8 @@ enum P
     LFO_WAVE, LFO_RATE, LFO_DELAY, LFO_PITCH, MW_VIB,
     MODE, UNI_DETUNE, GLIDE, BEND, DRIFT, SPREAD,
     CHORUS, DLY_TIME, DLY_FB, DLY_MIX, REV_SIZE, REV_MIX, VOLUME,
+    FM_AMT, FM_RATIO, FM_ENV, FM_VEL,
+    ARP_ON, ARP_MODE, ARP_RATE, ARP_OCT, ARP_GATE, ARP_LATCH,
     NUM_PARAMS
 };
 
@@ -38,6 +40,10 @@ enum FType   { F_LP24, F_LP12, F_BP, F_HP };
 enum LWave   { L_TRI, L_SINE, L_SAW, L_SQUARE, L_SH };
 enum VMode   { M_POLY, M_MONO, M_UNISON };
 enum ChMode  { C_OFF, C_I, C_II, C_I_II };
+enum ArpMode { A_UP, A_DOWN, A_UPDOWN, A_RANDOM, A_PLAYED };
+
+// FM ratio choices (index 0 = free: Osc 2 uses its own octave/semi/detune)
+inline const float* fmRatios() { static const float r[] = { 0, 0.5f, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }; return r; }
 
 inline const std::vector<ParamDef>& paramDefs()
 {
@@ -84,7 +90,7 @@ inline const std::vector<ParamDef>& paramDefs()
         { "aR",         "Amp Release", Float, 0.001f, 10, 0.3f,   0.6f, {}, "s" },
         { "ampVel",     "Amp Vel",     Float, 0, 1, 0.5f, 0, {}, "" },
 
-        { "lfoWave",    "LFO Wave",    Choice, 0, 4, 0, 0, { "Triangle", "Sine", "Saw", "Square", "S&H" }, "" },
+        { "lfoWave",    "LFO Wave",    Choice, 0, 4, 0, 0, { "Tri", "Sine", "Saw", "Square", "S&H" }, "" },
         { "lfoRate",    "LFO Rate",    Float, 0.05f, 30, 5, 3, {}, "Hz" },
         { "lfoDelay",   "LFO Delay",   Float, 0, 5, 0, 0.8f, {}, "s" },
         { "lfoPitch",   "LFO>Pitch",   Float, 0, 1, 0, 0.25f, {}, "" },
@@ -104,6 +110,18 @@ inline const std::vector<ParamDef>& paramDefs()
         { "revSize",    "Reverb Size", Float, 0, 1, 0.6f, 0, {}, "" },
         { "revMix",     "Reverb Mix",  Float, 0, 1, 0.1f, 0, {}, "" },
         { "volume",     "Volume",      Float, -36, 6, -6, 0, {}, "dB" },
+
+        { "fmAmt",      "FM Amount",   Float, 0, 1, 0, 0, {}, "" },
+        { "fmRatio",    "FM Ratio",    Choice, 0, 15, 0, 0, { "Free", "0.5", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14" }, "" },
+        { "fmEnv",      "FM Env",      Float, 0, 1, 0, 0, {}, "" },
+        { "fmVel",      "FM Velocity", Float, 0, 1, 0.3f, 0, {}, "" },
+
+        { "arpOn",      "Arp On",      Bool,  0, 1, 0, 0, {}, "" },
+        { "arpMode",    "Arp Mode",    Choice, 0, 4, 0, 0, { "Up", "Down", "Up/Down", "Random", "As Played" }, "" },
+        { "arpRate",    "Arp Rate",    Choice, 0, 6, 3, 0, { "1/4", "1/8", "1/8T", "1/16", "1/16T", "1/32", "1/8D" }, "" },
+        { "arpOct",     "Arp Octaves", Int,   1, 4, 1, 0, {}, "" },
+        { "arpGate",    "Arp Gate",    Float, 0.05f, 1, 0.6f, 0, {}, "" },
+        { "arpLatch",   "Arp Latch",   Bool,  0, 1, 0, 0, {}, "" },
     };
     return d;
 }

@@ -17,8 +17,8 @@ add_subdirectory(${JUCE_DIR} JUCE)
 set(AE8_FORMATS "VST3;Standalone" CACHE STRING "Plugin formats to build")
 
 juce_add_plugin(AE8
-  COMPANY_NAME "AE Audio"
-  PRODUCT_NAME "AE-8 Analog Poly"
+  COMPANY_NAME "AE-8"
+  PRODUCT_NAME "AE-8 POLY"
   PLUGIN_MANUFACTURER_CODE Aeau
   PLUGIN_CODE Ae8s
   IS_SYNTH TRUE

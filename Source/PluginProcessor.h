@@ -2,6 +2,7 @@
 #include <JuceHeader.h>
 #include "SynthEngine.h"
 #include "Presets.h"
+#include "Arp.h"
 
 class AE8Processor : public juce::AudioProcessor
 {
@@ -18,7 +19,7 @@ public:
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
 
-    const juce::String getName() const override { return "AE-8 Analog Poly"; }
+    const juce::String getName() const override { return "AE-8 POLY"; }
     bool acceptsMidi() const override  { return true; }
     bool producesMidi() const override { return false; }
     bool isMidiEffect() const override { return false; }
@@ -42,6 +43,9 @@ private:
     void handleMidi (const juce::MidiMessage& m);
 
     ae8::Engine engine;
+    ae8::Arpeggiator arp;
+    bool arpWasOn = false, latchWasOn = false;
+    double freeBeat = 0.0, sampleRate = 44100.0;
     std::array<std::atomic<float>*, ae8::NUM_PARAMS> raw {};
     juce::AudioBuffer<float> work;
 

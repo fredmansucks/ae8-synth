@@ -9,8 +9,11 @@ public:
     void drawRotarySlider (juce::Graphics&, int x, int y, int w, int h, float pos, float start, float end, juce::Slider&) override;
     void drawToggleButton (juce::Graphics&, juce::ToggleButton&, bool highlighted, bool down) override;
     void drawComboBox (juce::Graphics&, int w, int h, bool down, int bx, int by, int bw, int bh, juce::ComboBox&) override;
-    juce::Font getComboBoxFont (juce::ComboBox&) override { return juce::Font (juce::FontOptions (13.0f, juce::Font::bold)); }
-    juce::Font getPopupMenuFont() override { return juce::Font (juce::FontOptions (14.0f)); }
+    void drawButtonBackground (juce::Graphics&, juce::Button&, const juce::Colour&, bool highlighted, bool down) override;
+    juce::Font getComboBoxFont (juce::ComboBox&) override;
+    juce::Font getPopupMenuFont() override;
+    juce::Font getTextButtonFont (juce::TextButton&, int) override;
+    juce::Label* createSliderTextBox (juce::Slider&) override;
 };
 
 class AE8Editor : public juce::AudioProcessorEditor, private juce::Timer
@@ -25,6 +28,7 @@ public:
 private:
     void timerCallback() override;
     void refreshPresetBox();
+    void drawBeltMark (juce::Graphics&, juce::Rectangle<float> area) const;
 
     struct Control
     {
@@ -39,8 +43,9 @@ private:
     };
     struct Section
     {
-        juce::String title;
+        juce::String title, tag;
         juce::Colour colour;
+        bool lightText;
         std::vector<int> params;
         juce::Rectangle<int> bounds;
     };
@@ -49,6 +54,8 @@ private:
     AE8LookAndFeel lnf;
     std::vector<Section> sections;
     std::vector<std::unique_ptr<Control>> controls;
+    juce::Path wordmark;
+    juce::Rectangle<int> headerArea, markArea, wordArea, displayArea;
 
     juce::ComboBox presetBox;
     juce::TextButton prevBtn { "<" }, nextBtn { ">" };

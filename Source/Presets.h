@@ -2,6 +2,7 @@
 // AE-8 Analog Poly — factory presets.
 // Each preset starts from the INIT values in ParamDefs.h and applies the overrides listed.
 // Tags in the names hint at the classic instrument the patch is modelled on:
+//   FM = 2-operator FM (DX-style)   ARP = uses the arpeggiator
 //   JP = Jupiter-8   JU = Juno-60/106   P5 = Prophet-5   OB = OB-X/OB-Xa
 //   MM = Minimoog    CS = CS-80         101 = SH-101     OD = Odyssey   PS = Polysix
 #include "ParamDefs.h"
@@ -128,6 +129,46 @@ inline const std::vector<Preset>& factoryPresets()
             {DLY_MIX,0.3f},{DLY_TIME,0.5f},{DLY_FB,0.5f},{REV_MIX,0.25f} } },
         { "FX CS Wind & Noise", { {OSC1_LEVEL,0},{NOISE_LEVEL,1},{FLT_TYPE,F_BP},{CUTOFF,900},{RESO,0.6f},{FLT_LFO,0.5f},{LFO_WAVE,L_SINE},{LFO_RATE,0.12f},{A_A,2},
             {A_R,3},{REV_MIX,0.5f},{REV_SIZE,0.95f},{SPREAD,0.8f},{FLT_KEY,1} } },
+
+        // --------------------------------------------------- FM (DX-style, 2-op)
+        // Osc 1 = carrier, Osc 2 = modulator. The filter envelope is the modulator envelope (FM Env).
+        { "FM Tine E.Piano", { {OSC1_WAVE,W_SINE},{OSC2_WAVE,W_SINE},{OSC2_LEVEL,0},{CUTOFF,20000},{RESO,0},{FLT_KEY,0},{FLT_VEL,0},{DRIVE,0},{DRIFT,0.08f},{HPF,20},{FM_RATIO,2},{FM_AMT,0.55f},{FM_ENV,0.9f},{FM_VEL,0.75f},{F_A,0.001f},{F_D,0.9f},{F_S,0.12f},{F_R,0.5f},
+            {A_A,0.002f},{A_D,3.5f},{A_S,0},{A_R,0.6f},{AMP_VEL,0.7f},{CHORUS,C_I},{REV_MIX,0.12f} } },
+        { "FM Bell Piano", { {OSC1_WAVE,W_SINE},{OSC2_WAVE,W_SINE},{OSC2_LEVEL,0},{CUTOFF,20000},{RESO,0},{FLT_KEY,0},{FLT_VEL,0},{DRIVE,0},{DRIFT,0.08f},{HPF,20},{FM_RATIO,15},{FM_AMT,0.38f},{FM_ENV,1},{FM_VEL,0.8f},{F_A,0.001f},{F_D,0.35f},{F_S,0},{F_R,0.3f},
+            {A_A,0.002f},{A_D,2.8f},{A_S,0},{A_R,0.6f},{AMP_VEL,0.7f},{CHORUS,C_II},{REV_MIX,0.15f} } },
+        { "FM Solid Bass", { {OSC1_WAVE,W_SINE},{OSC2_WAVE,W_SINE},{OSC2_LEVEL,0},{CUTOFF,20000},{RESO,0},{FLT_KEY,0},{FLT_VEL,0},{DRIVE,0},{DRIFT,0.08f},{HPF,20},{MODE,M_MONO},{VOLUME,-1},{OSC1_OCT,-1},{FM_RATIO,2},{FM_AMT,0.7f},{FM_ENV,0.85f},{F_A,0.001f},{F_D,0.25f},{F_S,0.2f},{F_R,0.1f},
+            {A_A,0.002f},{A_D,0.8f},{A_S,0.6f},{A_R,0.1f},{REV_MIX,0},{SPREAD,0},{DRIVE,0.25f} } },
+        { "FM Slap Bass", { {OSC1_WAVE,W_SINE},{OSC2_WAVE,W_SINE},{OSC2_LEVEL,0},{CUTOFF,20000},{RESO,0},{FLT_KEY,0},{FLT_VEL,0},{DRIVE,0},{DRIFT,0.08f},{HPF,20},{MODE,M_MONO},{VOLUME,-1},{OSC1_OCT,-1},{FM_RATIO,3},{FM_AMT,0.8f},{FM_ENV,1},{FM_VEL,0.6f},{F_A,0.001f},{F_D,0.14f},{F_S,0.1f},{F_R,0.1f},
+            {A_A,0.001f},{A_D,0.5f},{A_S,0.35f},{A_R,0.08f},{REV_MIX,0},{SPREAD,0} } },
+        { "FM Glass Bells", { {OSC1_WAVE,W_SINE},{OSC2_WAVE,W_SINE},{OSC2_LEVEL,0},{CUTOFF,20000},{RESO,0},{FLT_KEY,0},{FLT_VEL,0},{DRIVE,0},{DRIFT,0.08f},{HPF,20},{OSC2_OCT,1},{OSC2_SEMI,5},{FM_AMT,0.55f},{FM_ENV,0.8f},{F_A,0.001f},{F_D,2.5f},{F_S,0},{F_R,2},
+            {A_A,0.002f},{A_D,4.5f},{A_S,0},{A_R,2.2f},{REV_MIX,0.35f},{REV_SIZE,0.8f},{DLY_MIX,0.12f} } },
+        { "FM Tubular Bells", { {OSC1_WAVE,W_SINE},{OSC2_WAVE,W_SINE},{OSC2_LEVEL,0},{CUTOFF,20000},{RESO,0},{FLT_KEY,0},{FLT_VEL,0},{DRIVE,0},{DRIFT,0.08f},{HPF,20},{OSC2_OCT,1},{OSC2_SEMI,2},{OSC2_DETUNE,14},{FM_AMT,0.65f},{FM_ENV,0.7f},{F_A,0.001f},{F_D,3},{F_S,0},{F_R,3},
+            {A_A,0.002f},{A_D,6},{A_S,0},{A_R,3},{REV_MIX,0.3f},{REV_SIZE,0.85f} } },
+        { "FM Marimba", { {OSC1_WAVE,W_SINE},{OSC2_WAVE,W_SINE},{OSC2_LEVEL,0},{CUTOFF,20000},{RESO,0},{FLT_KEY,0},{FLT_VEL,0},{DRIVE,0},{DRIFT,0.08f},{HPF,20},{FM_RATIO,5},{FM_AMT,0.5f},{FM_ENV,1},{FM_VEL,0.6f},{F_A,0.001f},{F_D,0.07f},{F_S,0},{F_R,0.05f},
+            {A_A,0.001f},{A_D,0.55f},{A_S,0},{A_R,0.35f},{AMP_VEL,0.8f},{REV_MIX,0.2f} } },
+        { "FM Brass Section", { {OSC1_WAVE,W_SINE},{OSC2_WAVE,W_SINE},{OSC2_LEVEL,0},{CUTOFF,20000},{RESO,0},{FLT_KEY,0},{FLT_VEL,0},{DRIVE,0},{DRIFT,0.08f},{HPF,20},{FM_RATIO,2},{FM_AMT,0.6f},{FM_ENV,0.85f},{FM_VEL,0.5f},{F_A,0.09f},{F_D,0.6f},{F_S,0.55f},{F_R,0.3f},
+            {A_A,0.05f},{A_D,0.4f},{A_S,0.9f},{A_R,0.3f},{LFO_RATE,5.5f},{LFO_PITCH,0.05f},{LFO_DELAY,0.7f},{OSC2_DETUNE,4},{REV_MIX,0.15f} } },
+        { "FM Digital Clav", { {OSC1_WAVE,W_SINE},{OSC2_WAVE,W_SINE},{OSC2_LEVEL,0},{CUTOFF,20000},{RESO,0},{FLT_KEY,0},{FLT_VEL,0},{DRIVE,0},{DRIFT,0.08f},{HPF,20},{FM_RATIO,4},{FM_AMT,0.6f},{FM_ENV,0.9f},{FM_VEL,0.7f},{F_A,0.001f},{F_D,0.2f},{F_S,0.1f},{F_R,0.1f},
+            {A_A,0.001f},{A_D,0.9f},{A_S,0},{A_R,0.12f},{HPF,220},{AMP_VEL,0.8f} } },
+        { "FM Reed Organ", { {OSC1_WAVE,W_SINE},{OSC2_WAVE,W_SINE},{OSC2_LEVEL,0},{CUTOFF,20000},{RESO,0},{FLT_KEY,0},{FLT_VEL,0},{DRIVE,0},{DRIFT,0.08f},{HPF,20},{FM_RATIO,3},{FM_AMT,0.35f},{FM_ENV,0},{F_S,1},{A_A,0.01f},{A_S,1},{A_R,0.1f},{AMP_VEL,0},
+            {LFO_RATE,6},{LFO_PITCH,0.03f},{CHORUS,C_I_II} } },
+        { "FM Crystal Pad", { {OSC1_WAVE,W_SINE},{OSC2_WAVE,W_SINE},{OSC2_LEVEL,0},{CUTOFF,20000},{RESO,0},{FLT_KEY,0},{FLT_VEL,0},{DRIVE,0},{DRIFT,0.08f},{HPF,20},{OSC2_OCT,2},{OSC2_DETUNE,7},{FM_AMT,0.35f},{FM_ENV,0.3f},{F_A,2},{F_D,4},{F_S,0.5f},{F_R,3},
+            {A_A,1.2f},{A_D,2},{A_S,1},{A_R,2.5f},{CHORUS,C_II},{REV_MIX,0.4f},{REV_SIZE,0.9f},{DLY_MIX,0.15f},{DLY_TIME,0.5f},{SPREAD,0.7f} } },
+        { "FM Log Drum", { {OSC1_WAVE,W_SINE},{OSC2_WAVE,W_SINE},{OSC2_LEVEL,0},{CUTOFF,20000},{RESO,0},{FLT_KEY,0},{FLT_VEL,0},{DRIVE,0},{DRIFT,0.08f},{HPF,20},{FM_RATIO,2},{FM_AMT,0.6f},{FM_ENV,1},{ENV_PITCH,0.05f},{F_A,0.001f},{F_D,0.06f},{F_S,0},{F_R,0.05f},
+            {A_A,0.001f},{A_D,0.35f},{A_S,0},{A_R,0.25f},{AMP_VEL,0.8f},{REV_MIX,0.15f} } },
+        { "FM Koto Pluck", { {OSC1_WAVE,W_SINE},{OSC2_WAVE,W_SINE},{OSC2_LEVEL,0},{CUTOFF,20000},{RESO,0},{FLT_KEY,0},{FLT_VEL,0},{DRIVE,0},{DRIFT,0.08f},{HPF,20},{FM_RATIO,4},{OSC2_DETUNE,3},{FM_AMT,0.5f},{FM_ENV,1},{F_A,0.001f},{F_D,0.1f},{F_S,0},{F_R,0.1f},
+            {A_A,0.001f},{A_D,1.2f},{A_S,0},{A_R,0.4f},{LFO_RATE,5},{LFO_PITCH,0.03f},{LFO_DELAY,0.5f},{REV_MIX,0.25f},{DLY_MIX,0.12f} } },
+
+        // ------------------------------------------------------------ ARP
+        { "ARP FM Bell Sequence", { {OSC1_WAVE,W_SINE},{OSC2_WAVE,W_SINE},{OSC2_LEVEL,0},{CUTOFF,20000},{RESO,0},{FLT_KEY,0},{FLT_VEL,0},{DRIVE,0},{DRIFT,0.08f},{HPF,20},{OSC2_OCT,1},{OSC2_SEMI,5},{FM_AMT,0.5f},{FM_ENV,0.9f},{F_A,0.001f},{F_D,0.4f},{F_S,0},{F_R,0.3f},
+            {A_A,0.001f},{A_D,0.9f},{A_S,0},{A_R,0.5f},{ARP_ON,1},{VOLUME,-1},{ARP_MODE,A_UPDOWN},{ARP_RATE,3},{ARP_OCT,2},{ARP_GATE,0.5f},
+            {DLY_MIX,0.3f},{DLY_TIME,0.375f},{DLY_FB,0.45f},{REV_MIX,0.25f} } },
+        { "ARP JU Pulse Arp", { {OSC1_WAVE,W_PULSE},{PW,0.35f},{SUB_LEVEL,0.3f},{CUTOFF,700},{RESO,0.45f},{FLT_ENV,0.5f},{F_D,0.15f},{F_S,0},{A_D,0.3f},{A_S,0.2f},{A_R,0.15f},
+            {CHORUS,C_I},{ARP_ON,1},{VOLUME,-1},{ARP_MODE,A_UP},{ARP_RATE,3},{ARP_OCT,2},{ARP_GATE,0.55f},{DLY_MIX,0.25f},{DLY_TIME,0.5625f},{DLY_FB,0.4f} } },
+        { "ARP OB Octave Bass", { {OSC1_OCT,-1},{OSC2_OCT,-1},{OSC2_LEVEL,1},{OSC2_DETUNE,8},{FLT_TYPE,F_LP12},{CUTOFF,400},{RESO,0.3f},{FLT_ENV,0.5f},{F_D,0.2f},{F_S,0.1f},
+            {A_R,0.1f},{DRIVE,0.5f},{REV_MIX,0},{SPREAD,0.2f},{ARP_ON,1},{VOLUME,-1},{ARP_MODE,A_PLAYED},{ARP_RATE,3},{ARP_OCT,2},{ARP_GATE,0.7f} } },
+        { "ARP FM Random Data", { {OSC1_WAVE,W_SINE},{OSC2_WAVE,W_SINE},{OSC2_LEVEL,0},{CUTOFF,20000},{RESO,0},{FLT_KEY,0},{FLT_VEL,0},{DRIVE,0},{DRIFT,0.08f},{HPF,20},{FM_RATIO,7},{FM_AMT,0.45f},{FM_ENV,1},{F_A,0.001f},{F_D,0.12f},{F_S,0},{A_D,0.25f},{A_S,0},{A_R,0.2f},
+            {ARP_ON,1},{VOLUME,-1},{ARP_MODE,A_RANDOM},{ARP_RATE,5},{ARP_OCT,3},{ARP_GATE,0.4f},{DLY_MIX,0.3f},{DLY_TIME,0.1875f},{DLY_FB,0.5f},{SPREAD,0.8f} } },
     };
     return p;
 }

@@ -490,7 +490,12 @@ private:
                          + prm[ENV_PITCH] * fEnvNow * 36.0f;
         const float nyq = 0.45f;
         const float dt1 = std::min (nyq, 440.0f * std::exp2 ((p1 - 69.0f) / 12.0f) / sr);
-        const float dt2 = std::min (nyq, 440.0f * std::exp2 ((p2 - 69.0f) / 12.0f) / sr);
+        float dt2 = std::min (nyq, 440.0f * std::exp2 ((p2 - 69.0f) / 12.0f) / sr);
+        const float ratio = fmRatios()[std::clamp ((int) prm[FM_RATIO], 0, 15)];
+        if (ratio > 0.0f)   // DX-style: Osc 2 locked to a ratio of Osc 1 (fine detune still applies)
+            dt2 = std::min (nyq, dt1 * ratio * std::exp2 ((prm[OSC2_DETUNE] / 100.0f + prm[ENV_PITCH] * fEnvNow * 36.0f) / 12.0f));
+        const float fmBase = prm[FM_AMT] * prm[FM_AMT] * 9.0f * (1.0f - prm[FM_VEL] + prm[FM_VEL] * v.vel);
+        const float fmEnvAmt = prm[FM_ENV];
 
         const float pw = std::clamp (prm[PW] + lfo * prm[PWM_LFO] * 0.42f, 0.04f, 0.96f);
 
@@ -525,14 +530,21 @@ private:
 
         for (int i = 0; i < len; ++i)
         {
-            const float fe = v.fEnv.next(); (void) fe;
+            const float fe = v.fEnv.next();
             const float ae = v.aEnv.next();
 
             // osc 2 first (it modulates osc 1)
             const float o2 = oscSample (w2, v.p2, dt2, pw);
             const float d1 = std::clamp (dt1 * (1.0f + xmod * 2.5f * o2), 0.0f, nyq);
 
-            const float o1 = oscSample (w1, v.p1, std::max (d1, 1e-6f), pw);
+            float ph1 = v.p1;
+            if (fmBase > 0.0f)   // phase modulation of Osc 1 by Osc 2
+            {
+                const float idx = fmBase * (1.0f - fmEnvAmt + fmEnvAmt * fe);
+                ph1 += idx * o2 * (1.0f / kTwoPi);
+                ph1 -= std::floor (ph1);
+            }
+            const float o1 = oscSample (w1, ph1, std::max (d1, 1e-6f), pw);
             float sub = v.pSub < 0.5f ? 1.0f : -1.0f;
             sub += polyBlep (v.pSub, dt1 * 0.5f);
             { float q = v.pSub + 0.5f; if (q >= 1.0f) q -= 1.0f; sub -= polyBlep (q, dt1 * 0.5f); }
