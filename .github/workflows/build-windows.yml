@@ -23,11 +23,11 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force dist | Out-Null
-          Copy-Item -Recurse "build/AE8_artefacts/Release/VST3/AE-8 Analog Poly.vst3" dist/
-          Copy-Item "build/AE8_artefacts/Release/Standalone/AE-8 Analog Poly.exe" dist/
+          Copy-Item -Recurse "build/AE8_artefacts/Release/VST3/AE-8 POLY.vst3" dist/
+          Copy-Item "build/AE8_artefacts/Release/Standalone/AE-8 POLY.exe" dist/
           Copy-Item README.md dist/
 
       - uses: actions/upload-artifact@v4
         with:
-          name: AE-8-Analog-Poly-Windows
+          name: AE-8-POLY-Windows
           path: dist
