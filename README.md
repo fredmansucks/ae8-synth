@@ -165,3 +165,26 @@ Tape machine effect (VST3 + Standalone). The signal is recorded to a virtual tap
 
 Programs: Master Deck 15 IPS, Hot Mixdown, Cassette Warm, Lo-Fi Worn, Seasick, Half Speed, Tape Stop FX, Dirty Bus.
 Latency: 30 ms, reported to the host so Ableton compensates automatically.
+
+## AE-8 CHOP
+
+Sampler instrument for chopping (VST3 + Standalone). Load it on a MIDI track and drop a sample on the waveform.
+
+**Chopping**
+- Chop modes: Transient (with Sensitivity), Beat (1 bar to 1/16, from the detected BPM), Equal (Slices count), Manual.
+- FIND drops cue points on the strongest hits across the file; RANDOM picks new ones each click. Both switch to Manual.
+- On the waveform: click = play the slice, double-click = add a slice, drag a numbered flag = move it, right-click a flag = delete it, mouse wheel = zoom, drag the strip underneath = scroll.
+- Up to 32 slices on two pad banks (A = C1-D#2, B = E2-G3, Ableton note names).
+
+**Sync**
+- BPM is detected (double-click to correct it). SYNC stretches the sample to your project tempo.
+- KEY is detected (pick another if it's off). Set your song's key in the TO box and turn on SYNC to transpose to it.
+- WARP on = pitch keeps the tempo (Serato style). WARP off = pitch changes the speed too (classic MPC / SP style).
+
+**Per slice:** Pitch, Fine, Stretch, Level, Pan, Start, Length, Attack, Release, Filter, Reverse, One-Shot, Loop, Choke group (1-3). COPY / PASTE copies settings between slices. Drag MIDI onto a MIDI track to get your chops in their original order.
+
+**Play:** Mono (each hit cuts the last), Poly, Gate (stops when you let go). Note Repeat at 1/8, 1/16, 1/32 or triplets with Swing, locked to Ableton's grid. PITCH layout plays the selected slice chromatically across the pads (C3 = root). Glide, Velocity.
+
+**Color:** LP / HP / BP filter with resonance, Bits and Rate (SP-style crunch), Drive.
+
+The sample is saved inside your Ableton set (up to 5 minutes), so projects still open if the file moves.
