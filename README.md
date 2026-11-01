@@ -149,3 +149,19 @@ Real-time vocal pitch correction (VST3, audio effect) with built-in voices, dist
 How it works: pitch is detected with the YIN algorithm about every 4 ms and snapped to the nearest note in your key, gliding there at the Speed you set. The voice is re-pitched with pitch-synchronous overlap-add (PSOLA), which moves the pitch without the "chipmunk" formant shift. Latency is about 34 ms; Ableton compensates for it automatically on playback. For live tracking, enable Reduced Latency When Monitoring in Ableton's Options menu, or monitor dry.
 
 Sources: `Tune/TuneEngine.h` (all DSP), `Tune/TuneProcessor.*`, `Tune/TuneEditor.*`, shared look in `Shared/Brand.h`. Offline test: `g++ -std=c++17 -O2 Tune/tests/tune_test.cpp`.
+
+## AE-8 TAPE
+
+Tape machine effect (VST3 + Standalone). The signal is recorded to a virtual tape loop and played back by a head that really moves at the Speed setting, so slowing the tape drops pitch and time together.
+
+| Section | Controls |
+|---|---|
+| RECORD | Input (-12 to +24 dB), Saturate |
+| TRANSPORT | Speed (0-100%), Stop (spins the motor down; release to spin back up and resync) |
+| TAPE | Bias (under = bright and gritty, over = dark and clean), Wow, Flutter, Wear (dulling + dropouts) |
+| NOISE | Hiss, Crosstalk, NR (noise reduction) |
+| EQ | Low shelf (110 Hz), High shelf (7.5 kHz) |
+| OUTPUT | Output, Mix |
+
+Programs: Master Deck 15 IPS, Hot Mixdown, Cassette Warm, Lo-Fi Worn, Seasick, Half Speed, Tape Stop FX, Dirty Bus.
+Latency: 30 ms, reported to the host so Ableton compensates automatically.

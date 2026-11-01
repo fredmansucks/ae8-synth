@@ -76,3 +76,33 @@ target_compile_definitions(AE8TUNE PUBLIC
 target_link_libraries(AE8TUNE
   PRIVATE juce::juce_audio_utils
   PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
+
+juce_add_plugin(AE8TAPE
+  COMPANY_NAME "AE-8"
+  PRODUCT_NAME "AE-8 TAPE"
+  PLUGIN_MANUFACTURER_CODE Aeau
+  PLUGIN_CODE Ae8a
+  IS_SYNTH FALSE
+  NEEDS_MIDI_INPUT FALSE
+  NEEDS_MIDI_OUTPUT FALSE
+  IS_MIDI_EFFECT FALSE
+  EDITOR_WANTS_KEYBOARD_FOCUS FALSE
+  COPY_PLUGIN_AFTER_BUILD FALSE
+  VST3_CATEGORIES Fx "Distortion"
+  FORMATS ${AE8_FORMATS})
+
+juce_generate_juce_header(AE8TAPE)
+
+target_sources(AE8TAPE PRIVATE
+  Tape/TapeProcessor.cpp
+  Tape/TapeEditor.cpp)
+
+target_compile_definitions(AE8TAPE PUBLIC
+  JUCE_WEB_BROWSER=0
+  JUCE_USE_CURL=0
+  JUCE_VST3_CAN_REPLACE_VST2=0
+  JUCE_DISPLAY_SPLASH_SCREEN=0)
+
+target_link_libraries(AE8TAPE
+  PRIVATE juce::juce_audio_utils
+  PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
