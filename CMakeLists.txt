@@ -1,0 +1,47 @@
+cmake_minimum_required(VERSION 3.22)
+project(AE8 VERSION 1.0.0)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if(MSVC)
+  # static runtime so the plugin doesn't need the VC++ redistributable
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
+# JUCE: pass -DJUCE_DIR=path/to/JUCE, or put a JUCE checkout next to this file
+if(NOT JUCE_DIR)
+  set(JUCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/JUCE)
+endif()
+add_subdirectory(${JUCE_DIR} JUCE)
+
+set(AE8_FORMATS "VST3;Standalone" CACHE STRING "Plugin formats to build")
+
+juce_add_plugin(AE8
+  COMPANY_NAME "AE Audio"
+  PRODUCT_NAME "AE-8 Analog Poly"
+  PLUGIN_MANUFACTURER_CODE Aeau
+  PLUGIN_CODE Ae8s
+  IS_SYNTH TRUE
+  NEEDS_MIDI_INPUT TRUE
+  NEEDS_MIDI_OUTPUT FALSE
+  IS_MIDI_EFFECT FALSE
+  EDITOR_WANTS_KEYBOARD_FOCUS FALSE
+  COPY_PLUGIN_AFTER_BUILD FALSE
+  VST3_CATEGORIES Instrument Synth
+  FORMATS ${AE8_FORMATS})
+
+juce_generate_juce_header(AE8)
+
+target_sources(AE8 PRIVATE
+  Source/PluginProcessor.cpp
+  Source/PluginEditor.cpp)
+
+target_compile_definitions(AE8 PUBLIC
+  JUCE_WEB_BROWSER=0
+  JUCE_USE_CURL=0
+  JUCE_VST3_CAN_REPLACE_VST2=0
+  JUCE_DISPLAY_SPLASH_SCREEN=0)
+
+target_link_libraries(AE8
+  PRIVATE juce::juce_audio_utils
+  PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
