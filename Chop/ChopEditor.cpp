@@ -34,11 +34,12 @@ void ChopLookAndFeel::drawLinearSlider (juce::Graphics& g, int x, int y, int w, 
 {
     if (style != juce::Slider::LinearBar) { LookAndFeel_V4::drawLinearSlider (g, x, y, w, h, pos, 0, 0, style, s); return; }
     auto r = juce::Rectangle<int> (x, y, w, h).toFloat().reduced (0.5f);
-    g.setColour (kBg); g.fillRoundedRectangle (r, 3.0f);
-    g.setColour (s.findColour (juce::Slider::trackColourId).withAlpha (0.35f));
-    g.fillRoundedRectangle (r.withRight (juce::jmax (r.getX() + 2, pos)), 3.0f);
-    g.setColour (kLine); g.drawRoundedRectangle (r, 3.0f, 1.0f);
-    g.setColour (kInk); g.setFont (mono (11.0f, true));
+    drawGlass (g, r, 4.0f);
+    const auto col = s.findColour (juce::Slider::trackColourId);
+    auto fill = r.reduced (2.0f).withRight (juce::jmax (r.getX() + 4, pos - 2));
+    g.setColour (col.withAlpha (0.16f)); g.fillRoundedRectangle (fill, 3.0f);
+    g.setColour (col); g.fillRect (fill.getX(), fill.getBottom() - 1.5f, fill.getWidth(), 1.5f);
+    g.setColour (kInk); g.setFont (tracked (mono (10.5f, true), 0.06f));
     g.drawText (s.getTextFromValue (s.getValue()), r, juce::Justification::centred);
 }
 
@@ -46,13 +47,25 @@ void Chip::paintButton (juce::Graphics& g, bool over, bool down)
 {
     auto r = getLocalBounds().toFloat().reduced (0.5f);
     const bool on = getToggleState() && ! action;
-    g.setColour (on ? onColour : (down ? kLine : (over ? kRaised : kBg)));
-    g.fillRoundedRectangle (r, 3.0f);
-    g.setColour (on ? onColour : kLine);
-    g.drawRoundedRectangle (r, 3.0f, 1.0f);
-    g.setColour (on ? kBg : (action ? kInk : kMuted));
-    g.setFont (mono (10.5f, true));
-    g.drawText (getButtonText(), r, juce::Justification::centred);
+    if (on || action)
+    {
+        ae8brand::LookAndFeel::drawRaised (g, r.reduced (0.5f), over, down);
+        if (on)
+        {
+            g.setColour (onColour.withAlpha (0.16f)); g.fillRoundedRectangle (r.reduced (1.5f), 4.0f);
+            auto bar = r.reduced (5.0f, 0).removeFromBottom (2.5f).translated (0, -2.0f);
+            g.setColour (onColour.withAlpha (0.35f)); g.fillRoundedRectangle (bar.expanded (1.5f), 2.0f);
+            g.setColour (onColour); g.fillRoundedRectangle (bar, 1.0f);
+        }
+    }
+    else
+    {
+        drawGlass (g, r, 4.0f);
+        if (over) { g.setColour (juce::Colours::white.withAlpha (0.04f)); g.fillRoundedRectangle (r, 4.0f); }
+    }
+    g.setColour (on || action ? kInk : kMuted);
+    g.setFont (tracked (mono (10.0f, true), 0.06f));
+    g.drawText (getButtonText(), r.translated (0, on ? -0.5f : 0.0f), juce::Justification::centred);
 }
 
 ChoiceChips::ChoiceChips (juce::RangedAudioParameter& p, juce::StringArray labels, juce::Colour on, std::vector<int> values)
@@ -134,7 +147,7 @@ int WaveView::flagAt (juce::Point<float> p) const
 void WaveView::paint (juce::Graphics& g)
 {
     auto r = getLocalBounds().toFloat();
-    g.setColour (juce::Colours::black); g.fillRoundedRectangle (r, 4.0f);
+    drawGlass (g, r, 6.0f);
     auto s = proc.currentSample();
     if (! s || s->size() == 0)
     {
@@ -210,7 +223,6 @@ void WaveView::paint (juce::Graphics& g)
     {
         g.setColour (kInk); g.fillRect (posToX (ph * len) - 0.75f, 0.0f, 1.5f, r.getHeight());
     }
-    g.setColour (kLine); g.drawRoundedRectangle (r.reduced (0.5f), 4.0f, 1.0f);
     if (dragHover) { g.setColour (flux (2)); g.drawRoundedRectangle (r.reduced (2), 4.0f, 2.0f); }
 }
 
@@ -298,6 +310,7 @@ void WaveView::filesDropped (const juce::StringArray& files, int, int)
 void OverviewStrip::paint (juce::Graphics& g)
 {
     auto r = getLocalBounds().toFloat();
+    drawGlass (g, r, 4.0f);
     const auto& ov = proc.overview;
     auto s = proc.currentSample();
     if (ov.empty() || ! s) return;
@@ -355,10 +368,21 @@ void PadGrid::paint (juce::Graphics& g)
         const int note = noteFor (pad);
         const bool lit = pitch ? proc.keyboardState.isNoteOn (1, note) : (exists && (playing >> si) & 1u);
         const bool isSel = ! pitch && si == sel;
-        g.setColour (lit ? c : (isSel ? c.withAlpha (0.22f) : juce::Colour (0xff14161d)));
-        g.fillRoundedRectangle (cell, 5.0f);
-        g.setColour (exists ? c.withAlpha (isSel || lit ? 1.0f : 0.8f) : kLine);
-        g.drawRoundedRectangle (cell, 5.0f, isSel ? 2.0f : 1.5f);
+        // soft-touch pad: shadow, rubber body, coloured ring that lights up when hit
+        g.setColour (juce::Colours::black.withAlpha (0.5f)); g.fillRoundedRectangle (cell.translated (0, 1.5f), 7.0f);
+        if (lit)
+        {
+            g.setColour (c.withAlpha (0.30f)); g.fillRoundedRectangle (cell.expanded (3.0f), 9.0f);
+            g.setGradientFill (juce::ColourGradient (c.brighter (0.35f), cell.getX(), cell.getY(), c.darker (0.2f), cell.getX(), cell.getBottom(), false));
+        }
+        else
+            g.setGradientFill (juce::ColourGradient (juce::Colour (0xff23262e), cell.getX(), cell.getY(), juce::Colour (0xff121419), cell.getX(), cell.getBottom(), false));
+        g.fillRoundedRectangle (cell, 7.0f);
+        if (isSel && ! lit) { g.setColour (c.withAlpha (0.12f)); g.fillRoundedRectangle (cell, 7.0f); }
+        g.setColour (exists ? c.withAlpha (lit ? 1.0f : (isSel ? 0.95f : 0.55f)) : kLine);
+        g.drawRoundedRectangle (cell.reduced (0.75f), 6.5f, isSel ? 2.0f : 1.2f);
+        g.setColour (juce::Colours::white.withAlpha (lit ? 0.35f : 0.07f));
+        g.drawLine (cell.getX() + 7, cell.getY() + 1.5f, cell.getRight() - 7, cell.getY() + 1.5f, 1.0f);
         const auto textCol = lit ? kBg : (exists ? c : kMuted.withAlpha (0.4f));
         g.setColour (textCol);
         g.setFont (mono (12.0f, true));
@@ -577,7 +601,7 @@ ChopEditor::ChopEditor (ChopProcessor& p)
     nextBtn.onClick = [this] { proc.setCurrentProgram ((proc.getCurrentProgram() + 1) % proc.getNumPrograms()); };
     addAndMakeVisible (presetBox); addAndMakeVisible (prevBtn); addAndMakeVisible (nextBtn);
 
-    setSize (kW, kH);
+    scaler.init (*this, kW, kH);
     refreshSlice();
     startTimerHz (30);
 #ifdef AE8_CHOP_DEMO
@@ -607,7 +631,7 @@ void ChopEditor::refreshSlice()
     keyBox.setSelectedId (proc.keyRoot + (proc.keyMinor ? 12 : 0) + 1, juce::dontSendNotification);
     bpmLabel.setText (juce::String (proc.detectedBpm, 1), juce::dontSendNotification);
     shownSelected = sel;
-    repaint (sliceArea.withHeight (22));
+    repaint (scaler.toWindow (*this, sliceArea.withHeight (22)));
 }
 
 juce::String ChopEditor::keyShiftText() const
@@ -619,7 +643,7 @@ juce::String ChopEditor::keyShiftText() const
 void ChopEditor::timerCallback()
 {
     if (proc.engine.selected.load() != shownSelected) { refreshSlice(); pads.repaint(); }
-    if (proc.changeCounter.load() != shownChange) { shownChange = proc.changeCounter.load(); refreshSlice(); wave.repaint(); overview.repaint(); pads.repaint(); repaint (sampleArea.withHeight (22)); }
+    if (proc.changeCounter.load() != shownChange) { shownChange = proc.changeCounter.load(); refreshSlice(); wave.repaint(); overview.repaint(); pads.repaint(); repaint (scaler.toWindow (*this, sampleArea.withHeight (22))); }
     if (proc.getCurrentProgram() != shownProgram) { shownProgram = proc.getCurrentProgram(); presetBox.setSelectedId (shownProgram + 1, juce::dontSendNotification); }
     const int mode = (int) proc.apvts.getRawParameterValue ("chopmode")->load();
     sensBar->setVisible (mode == CHOP_TRANSIENT);
@@ -628,14 +652,15 @@ void ChopEditor::timerCallback()
     const uint32_t pl = proc.engine.guiPlaying.load();
     if (pl != 0 || lastPlaying != 0) { wave.repaint(); pads.repaint(); }
     lastPlaying = pl;
-    repaint (toolbar.withLeft (toolbar.getRight() - 470).withWidth (60));
+    repaint (scaler.toWindow (*this, toolbar.withLeft (toolbar.getRight() - 470).withWidth (60)));
 }
 
 void ChopEditor::paint (juce::Graphics& g)
 {
-    g.fillAll (kBg);
+    g.addTransform (juce::AffineTransform::scale (scaler.scale (*this)));
+    drawWindow (g, scaler.design());
     drawHeader (g, headerArea, "CHOP", "C-04 / SAMPLER");
-    g.setFont (mono (10.5f, true)); g.setColour (kMuted);
+    g.setFont (tracked (mono (9.5f, true), 0.12f)); g.setColour (kMuted);
     g.drawText ("PROGRAM", presetBox.getBounds().translated (-80, 0).withWidth (72), juce::Justification::centredRight);
 
     auto s = proc.currentSample();
@@ -666,13 +691,15 @@ void ChopEditor::paint (juce::Graphics& g)
 
 void ChopEditor::placeKnob (juce::Slider& s, juce::Rectangle<int> cell)
 {
-    if (auto* l = knobLabels[&s]) l->setBounds (cell.removeFromTop (14));
-    s.setBounds (cell.withSizeKeepingCentre (juce::jmin (cell.getWidth(), 74), cell.getHeight()));
+    cell.removeFromTop (14);
+    auto k = cell.withSizeKeepingCentre (juce::jmin (cell.getWidth(), 74), juce::jmin (cell.getHeight(), 88));
+    if (auto* l = knobLabels[&s]) l->setBounds (k.getX() - 10, k.getY() - 14, k.getWidth() + 20, 14);
+    s.setBounds (k);
 }
 
 void ChopEditor::resized()
 {
-    auto area = getLocalBounds().reduced (kGap, 0);
+    auto area = scaler.design().reduced (kGap, 0);
     area.removeFromTop (kGap);
     headerArea = area.removeFromTop (kHeader);
     area.removeFromTop (kGap);
@@ -766,7 +793,7 @@ void ChopEditor::resized()
     }
     {
         auto in = colorArea.withTrimmedTop (20).reduced (10, 6);
-        auto bottom = in.removeFromBottom (32);
+        auto bottom = in.removeFromBottom (40);
         const int cw = in.getWidth() / 4;
         int idx = 0;
         juce::Slider* drive = nullptr;
@@ -779,13 +806,15 @@ void ChopEditor::resized()
         ftypeChips->setBounds (bottom.removeFromLeft (110).withSizeKeepingCentre (110, 24));
         if (drive)
         {
-            auto dcell = bottom.removeFromRight (130);
+            auto dcell = bottom.removeFromRight (140);
             knobLabels[drive]->setBounds (dcell.removeFromLeft (44));
+            dcell = dcell.withSizeKeepingCentre (dcell.getWidth(), 40);
             drive->setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
             drive->setTextBoxStyle (juce::Slider::TextBoxRight, false, 44, 15);
             drive->setBounds (dcell);
         }
     }
+    scaler.apply (*this);
 }
 
 #ifdef AE8_CHOP_DEMO

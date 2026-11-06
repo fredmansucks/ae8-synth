@@ -54,6 +54,7 @@ private:
 
     TuneProcessor& proc;
     ae8brand::LookAndFeel lnf;
+    ae8brand::Scaler scaler;
     std::vector<Section> sections;
     std::vector<std::unique_ptr<Knob>> knobs;
     PitchView pitchView;

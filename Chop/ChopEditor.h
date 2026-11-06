@@ -122,6 +122,7 @@ private:
 
     ChopProcessor& proc;
     ChopLookAndFeel lnf;
+    ae8brand::Scaler scaler;
     WaveView wave;
     OverviewStrip overview;
     PadGrid pads;

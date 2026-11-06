@@ -1,19 +1,15 @@
 #pragma once
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "../Shared/Brand.h"
 
-class AE8LookAndFeel : public juce::LookAndFeel_V4
+// Premium keyboard: ivory keys with a soft gradient, gloss black keys, lit key-down.
+class AE8Keyboard : public juce::MidiKeyboardComponent
 {
 public:
-    AE8LookAndFeel();
-    void drawRotarySlider (juce::Graphics&, int x, int y, int w, int h, float pos, float start, float end, juce::Slider&) override;
-    void drawToggleButton (juce::Graphics&, juce::ToggleButton&, bool highlighted, bool down) override;
-    void drawComboBox (juce::Graphics&, int w, int h, bool down, int bx, int by, int bw, int bh, juce::ComboBox&) override;
-    void drawButtonBackground (juce::Graphics&, juce::Button&, const juce::Colour&, bool highlighted, bool down) override;
-    juce::Font getComboBoxFont (juce::ComboBox&) override;
-    juce::Font getPopupMenuFont() override;
-    juce::Font getTextButtonFont (juce::TextButton&, int) override;
-    juce::Label* createSliderTextBox (juce::Slider&) override;
+    using juce::MidiKeyboardComponent::MidiKeyboardComponent;
+    void drawWhiteNote (int note, juce::Graphics&, juce::Rectangle<float> area, bool isDown, bool isOver, juce::Colour, juce::Colour) override;
+    void drawBlackNote (int note, juce::Graphics&, juce::Rectangle<float> area, bool isDown, bool isOver, juce::Colour) override;
 };
 
 class AE8Editor : public juce::AudioProcessorEditor, private juce::Timer
@@ -28,7 +24,6 @@ public:
 private:
     void timerCallback() override;
     void refreshPresetBox();
-    void drawBeltMark (juce::Graphics&, juce::Rectangle<float> area) const;
 
     struct Control
     {
@@ -51,7 +46,8 @@ private:
     };
 
     AE8Processor& proc;
-    AE8LookAndFeel lnf;
+    ae8brand::LookAndFeel lnf;
+    ae8brand::Scaler scaler;
     std::vector<Section> sections;
     std::vector<std::unique_ptr<Control>> controls;
     juce::Path wordmark;
@@ -59,7 +55,7 @@ private:
 
     juce::ComboBox presetBox;
     juce::TextButton prevBtn { "<" }, nextBtn { ">" };
-    juce::MidiKeyboardComponent keyboard;
+    AE8Keyboard keyboard;
     int shownProgram = -1;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AE8Editor)

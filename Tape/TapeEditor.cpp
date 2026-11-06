@@ -3,7 +3,8 @@
 using namespace ae8tape;
 using namespace ae8brand;
 
-namespace { constexpr int kW = 1180, kHeader = 64, kGap = 8, kTopH = 300, kKnobH = 124, kSideW = 250; }
+namespace { constexpr int kW = 1180, kHeader = 64, kGap = 8, kTopH = 300, kKnobH = 124, kSideW = 250;
+            constexpr int kH = kGap + kHeader + kGap + kTopH + kGap + kKnobH + kGap; }
 
 //==============================================================================
 void TapeLookAndFeel::drawLinearSlider (juce::Graphics& g, int x, int y, int w, int h, float pos, float, float,
@@ -13,20 +14,31 @@ void TapeLookAndFeel::drawLinearSlider (juce::Graphics& g, int x, int y, int w, 
     const float cx = (float) x + (float) w * 0.5f;
     const float top = (float) y + 8, bot = (float) (y + h) - 8;
     // scale ticks
-    g.setColour (kLine);
-    for (int i = 0; i <= 10; ++i) { const float ty = top + (bot - top) * (float) i / 10.0f; const float tw = i % 5 == 0 ? 10.0f : 5.0f; g.drawHorizontalLine ((int) ty, cx - 12 - tw, cx - 12); g.drawHorizontalLine ((int) ty, cx + 12, cx + 12 + tw); }
-    // groove
-    g.setColour (juce::Colours::black); g.fillRoundedRectangle (cx - 3, top, 6, bot - top, 3);
-    // fill from zero point (bipolar) or bottom
+    for (int i = 0; i <= 10; ++i)
+    {
+        const float ty = top + (bot - top) * (float) i / 10.0f; const float tw = i % 5 == 0 ? 9.0f : 5.0f;
+        g.setColour (kInk.withAlpha (i % 5 == 0 ? 0.30f : 0.14f));
+        g.fillRect (cx - 13 - tw, ty, tw, 1.0f); g.fillRect (cx + 13, ty, tw, 1.0f);
+    }
+    // milled slot
+    drawGlass (g, { cx - 3.5f, top - 2, 7.0f, bot - top + 4 }, 3.5f);
+    // lit fill from zero point (bipolar) or bottom
     const bool bipolar = s.getMinimum() < 0 && s.getMaximum() > 0;
     const float zeroY = bipolar ? (float) s.getPositionOfValue (0.0) : bot;
-    g.setColour (s.findColour (juce::Slider::trackColourId));
-    g.fillRoundedRectangle (cx - 2, juce::jmin (zeroY, pos), 4, std::fabs (zeroY - pos), 2);
-    // cap
-    auto cap = juce::Rectangle<float> (cx - 17, pos - 9, 34, 18);
-    g.setColour (kRaised.brighter (0.1f)); g.fillRoundedRectangle (cap, 3);
-    g.setColour (kLine.brighter (0.4f)); g.drawRoundedRectangle (cap, 3, 1);
-    g.setColour (kInk); g.fillRect (cap.getX() + 4, pos - 0.75f, cap.getWidth() - 8, 1.5f);
+    const auto col = s.findColour (juce::Slider::trackColourId);
+    auto fill = juce::Rectangle<float> (cx - 1.5f, juce::jmin (zeroY, pos), 3.0f, std::fabs (zeroY - pos));
+    g.setColour (col.withAlpha (0.22f)); g.fillRoundedRectangle (fill.expanded (2.5f, 1.0f), 3.0f);
+    g.setColour (col); g.fillRoundedRectangle (fill, 1.5f);
+    // machined cap
+    auto cap = juce::Rectangle<float> (cx - 18, pos - 11, 36, 22);
+    for (int i = 1; i <= 3; ++i) { g.setColour (juce::Colours::black.withAlpha (0.18f)); g.fillRoundedRectangle (cap.translated (0, (float) i).expanded (0.5f * i), 4); }
+    g.setGradientFill (juce::ColourGradient (juce::Colour (0xff40444e), cap.getX(), cap.getY(), juce::Colour (0xff121318), cap.getX(), cap.getBottom(), false));
+    g.fillRoundedRectangle (cap, 4);
+    g.setGradientFill (juce::ColourGradient (juce::Colour (0xff1a1c22), cap.getX(), cap.getCentreY(), juce::Colour (0xff2a2d35), cap.getX(), cap.getBottom(), false));
+    g.fillRoundedRectangle (cap.withTrimmedTop (cap.getHeight() * 0.5f).reduced (2.0f, 1.0f), 2);
+    g.setColour (juce::Colours::black); g.drawRoundedRectangle (cap, 4, 1);
+    g.setColour (juce::Colours::white.withAlpha (0.18f)); g.fillRect (cap.getX() + 4, cap.getY() + 1, cap.getWidth() - 8, 1.0f);
+    g.setColour (kInk); g.fillRect (cap.getX() + 5, pos - 0.75f, cap.getWidth() - 10, 1.5f);
 }
 
 void TapeLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& b, bool hi, bool)
@@ -34,11 +46,12 @@ void TapeLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& b
     auto r = b.getLocalBounds().toFloat().reduced (1.0f);
     const bool on = b.getToggleState();
     const auto col = b.findColour (juce::ToggleButton::tickColourId);
-    g.setColour (on ? col : (hi ? kRaised.brighter (0.15f) : kRaised)); g.fillRoundedRectangle (r, 4.0f);
-    g.setColour (on ? col.brighter (0.3f) : kLine); g.drawRoundedRectangle (r, 4.0f, 1.0f);
-    g.setColour (on ? kBg : kInk); g.setFont (mono (13.0f, true));
+    drawRaised (g, r, hi, on);
+    if (on) { g.setColour (col.withAlpha (0.14f)); g.fillRoundedRectangle (r.reduced (1.0f), 4.0f); }
+    drawLed (g, { r.getX() + 14.0f, r.getCentreY() }, 3.5f, col, on);
+    g.setColour (on ? kInk : kMuted); g.setFont (tracked (mono (12.0f, true), 0.1f));
     const auto txt = b.getButtonText() == "ON" ? juce::String (on ? "ON" : "OFF") : b.getButtonText();
-    g.drawText (txt, r, juce::Justification::centred);
+    g.drawText (txt, r.withTrimmedLeft (18.0f), juce::Justification::centred);
 }
 
 //==============================================================================
@@ -54,8 +67,10 @@ void ReelsView::drawReel (juce::Graphics& g, juce::Point<float> c, float R, floa
     g.setColour (kBg.withAlpha (0.35f));
     for (int i = 1; i < 7; ++i) { const float rr = 0.3f * R + (packR - 0.3f * R) * (float) i / 7.0f; g.drawEllipse (c.x - rr, c.y - rr, rr * 2, rr * 2, 0.6f); }
     // flange (transparent with spokes)
-    g.setColour (kInk.withAlpha (0.08f)); g.fillEllipse (c.x - R, c.y - R, R * 2, R * 2);
-    g.setColour (kInk.withAlpha (0.55f)); g.drawEllipse (c.x - R, c.y - R, R * 2, R * 2, 1.5f);
+    g.setGradientFill (juce::ColourGradient (kInk.withAlpha (0.16f), c.x - R * 0.5f, c.y - R * 0.7f, kInk.withAlpha (0.03f), c.x + R * 0.6f, c.y + R, true));
+    g.fillEllipse (c.x - R, c.y - R, R * 2, R * 2);
+    g.setColour (kInk.withAlpha (0.5f)); g.drawEllipse (c.x - R, c.y - R, R * 2, R * 2, 1.2f);
+    g.setColour (juce::Colours::black.withAlpha (0.6f)); g.drawEllipse (c.x - R - 1.5f, c.y - R - 1.5f, R * 2 + 3, R * 2 + 3, 1.0f);
     for (int k = 0; k < 3; ++k)
     {
         juce::Path win;
@@ -82,8 +97,7 @@ void ReelsView::drawReel (juce::Graphics& g, juce::Point<float> c, float R, floa
 void ReelsView::paint (juce::Graphics& g)
 {
     auto r = getLocalBounds().toFloat();
-    g.setColour (juce::Colours::black); g.fillRoundedRectangle (r, 4.0f);
-    g.setColour (kLine); g.drawRoundedRectangle (r.reduced (0.5f), 4.0f, 1.0f);
+    drawGlass (g, r, 6.0f);
 
     auto& e = proc.engine;
     const float pack = e.guiPack.load();
@@ -193,7 +207,7 @@ TapeEditor::TapeEditor (TapeProcessor& p)
     addAndMakeVisible (presetBox); addAndMakeVisible (prevBtn); addAndMakeVisible (nextBtn);
     addAndMakeVisible (reels);
 
-    setSize (kW, kGap + kHeader + kGap + kTopH + kGap + kKnobH + kGap);
+    scaler.init (*this, kW, kH);
     startTimerHz (30);
 #ifdef AE8_TAPE_DEMO
     proc.startDemo();
@@ -208,13 +222,13 @@ void TapeEditor::timerCallback()
     auto fall = [] (float& v, float nv) { v = juce::jmax (nv, v * 0.85f); };
     fall (inL, e.guiInL.load()); fall (inR, e.guiInR.load()); fall (outL, e.guiOutL.load()); fall (outR, e.guiOutR.load());
     reels.repaint();
-    repaint (inMeter); repaint (outMeter);
+    repaint (scaler.toWindow (*this, inMeter)); repaint (scaler.toWindow (*this, outMeter));
     if (proc.getCurrentProgram() != shownProgram) { shownProgram = proc.getCurrentProgram(); presetBox.setSelectedId (shownProgram + 1, juce::dontSendNotification); }
 }
 
 void TapeEditor::drawMeter (juce::Graphics& g, juce::Rectangle<int> a, float l, float r, const juce::String& label)
 {
-    g.setColour (juce::Colours::black); g.fillRoundedRectangle (a.toFloat(), 3.0f);
+    drawGlass (g, a.toFloat(), 5.0f);
     auto body = a.reduced (5, 6).withTrimmedBottom (14);
     const int bw = (body.getWidth() - 3) / 2;
     int ci = 0;
@@ -229,8 +243,9 @@ void TapeEditor::drawMeter (juce::Graphics& g, juce::Rectangle<int> a, float l, 
             const float sf = (float) s / (float) segs;
             auto seg = juce::Rectangle<float> ((float) bar.getX(), (float) bar.getBottom() - (float) bar.getHeight() * (sf + 1.0f / segs) + 1, (float) bar.getWidth(), (float) bar.getHeight() / segs - 2);
             const int fi = sf > 0.9f ? 6 : sf > 0.8f ? 5 : sf > 0.7f ? 4 : sf > 0.45f ? 3 : 2;
-            g.setColour (sf < frac ? flux (fi) : kLine.withAlpha (0.6f));
-            g.fillRect (seg);
+            if (sf < frac) { g.setColour (flux (fi).withAlpha (0.25f)); g.fillRect (seg.expanded (1.0f)); g.setColour (flux (fi)); }
+            else g.setColour (juce::Colour (0xff15171c));
+            g.fillRoundedRectangle (seg, 1.0f);
         }
         ++ci;
     }
@@ -240,9 +255,10 @@ void TapeEditor::drawMeter (juce::Graphics& g, juce::Rectangle<int> a, float l, 
 
 void TapeEditor::paint (juce::Graphics& g)
 {
-    g.fillAll (kBg);
+    g.addTransform (juce::AffineTransform::scale (scaler.scale (*this)));
+    drawWindow (g, scaler.design());
     drawHeader (g, headerArea, "TAPE", "T-02 / TAPE MACHINE");
-    g.setFont (mono (10.5f, true)); g.setColour (kMuted);
+    g.setFont (tracked (mono (9.5f, true), 0.12f)); g.setColour (kMuted);
     g.drawText ("PROGRAM", presetBox.getBounds().translated (-80, 0).withWidth (72), juce::Justification::centredRight);
 
     drawSection (g, recArea, "RECORD", "IN / DRIVE", flux (6), false);
@@ -255,7 +271,7 @@ void TapeEditor::paint (juce::Graphics& g)
 
 void TapeEditor::resized()
 {
-    auto area = getLocalBounds().reduced (kGap, 0);
+    auto area = scaler.design().reduced (kGap, 0);
     area.removeFromTop (kGap);
     headerArea = area.removeFromTop (kHeader);
     area.removeFromTop (kGap);
@@ -333,5 +349,5 @@ void TapeEditor::resized()
             }
         }
     }
+    scaler.apply (*this);
 }
-

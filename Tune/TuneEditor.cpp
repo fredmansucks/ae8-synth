@@ -8,6 +8,7 @@ namespace
 const char* kNoteNames[12] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
 juce::String noteName (int midi) { return juce::String (kNoteNames[((midi % 12) + 12) % 12]) + juce::String (midi / 12 - 2); }  // C3 = 60 (Ableton)
 constexpr int kW = 1180, kHeader = 64, kGap = 8, kTunerH = 220, kKnobH = 118;
+constexpr int kH = kGap + kHeader + kGap + kTunerH + kGap + kKnobH + kGap;
 }
 
 //==============================================================================
@@ -26,8 +27,7 @@ void PitchView::push()
 void PitchView::paint (juce::Graphics& g)
 {
     auto r = getLocalBounds().toFloat();
-    g.setColour (juce::Colours::black); g.fillRoundedRectangle (r, 4.0f);
-    g.setColour (kLine); g.drawRoundedRectangle (r.reduced (0.5f), 4.0f, 1.0f);
+    drawGlass (g, r, 6.0f);
     auto plot = r.reduced (8.0f, 6.0f).withTrimmedLeft (34.0f);
 
     const float span = 14.0f;                         // semitones visible
@@ -64,8 +64,10 @@ void PitchView::paint (juce::Graphics& g)
         g.fillEllipse (x - 1.5f, yi - 1.5f, 3.0f, 3.0f);
         if (! pen) { outPath.startNewSubPath (x, yo); pen = true; } else outPath.lineTo (x, yo);
     }
+    g.setColour (flux (5).withAlpha (0.18f));
+    g.strokePath (outPath, juce::PathStrokeType (7.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
     g.setColour (flux (5));
-    g.strokePath (outPath, juce::PathStrokeType (2.5f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+    g.strokePath (outPath, juce::PathStrokeType (2.2f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
 
     g.setFont (mono (9.5f));
     g.setColour (kMuted);
@@ -87,16 +89,22 @@ void KeyStrip::paint (juce::Graphics& g)
         const bool sharp = juce::String (kNoteNames[i]).contains ("#");
         const bool on = (msk >> (((i - key) % 12 + 12) % 12)) & 1;
         const bool root = i == key;
-        g.setColour (root ? flux (2) : (on ? kRaised : kBg));
-        g.fillRoundedRectangle (cell, 4.0f);
-        g.setColour (sharp && ! root ? kLine.brighter (0.2f) : kLine);
-        if (! root) g.drawRoundedRectangle (cell, 4.0f, 1.0f);
+        juce::ignoreUnused (sharp);
+        if (on) ae8brand::LookAndFeel::drawRaised (g, cell, false, false);
+        else    drawGlass (g, cell, 5.0f);
+        if (root)
+        {
+            g.setColour (flux (2).withAlpha (0.20f)); g.fillRoundedRectangle (cell.expanded (1.5f), 6.0f);
+            g.setGradientFill (juce::ColourGradient (flux (2).brighter (0.3f), cell.getX(), cell.getY(), flux (2).darker (0.25f), cell.getX(), cell.getBottom(), false));
+            g.fillRoundedRectangle (cell, 5.0f);
+        }
         if (tgt >= 0 && ((tgt % 12) + 12) % 12 == i)
         {
-            g.setColour (flux (5)); g.drawRoundedRectangle (cell.reduced (1.0f), 4.0f, 2.0f);
+            g.setColour (flux (5).withAlpha (0.3f)); g.drawRoundedRectangle (cell.expanded (1.0f), 6.0f, 3.0f);
+            g.setColour (flux (5)); g.drawRoundedRectangle (cell, 5.0f, 1.5f);
         }
-        g.setColour (root ? kBg : (on ? kInk : kMuted.withAlpha (0.6f)));
-        g.setFont (mono (12.0f, true));
+        g.setColour (root ? kBg : (on ? kInk : kMuted.withAlpha (0.5f)));
+        g.setFont (mono (11.5f, true));
         g.drawText (kNoteNames[i], cell, juce::Justification::centred);
     }
 }
@@ -183,7 +191,7 @@ TuneEditor::TuneEditor (TuneProcessor& p)
     addAndMakeVisible (pitchView);
     addAndMakeVisible (keyStrip);
 
-    setSize (kW, kGap + kHeader + kGap + kTunerH + kGap + kKnobH + kGap);
+    scaler.init (*this, kW, kH);
     startTimerHz (30);
 #ifdef AE8_TUNE_DEMO
     proc.startDemo();
@@ -196,15 +204,16 @@ void TuneEditor::timerCallback()
 {
     pitchView.push();
     keyStrip.repaint();
-    repaint (tunerArea.withWidth (300));
+    repaint (scaler.toWindow (*this, tunerArea.withWidth (300)));
     if (proc.getCurrentProgram() != shownProgram) { shownProgram = proc.getCurrentProgram(); styleBox.setSelectedId (shownProgram + 1, juce::dontSendNotification); }
 }
 
 void TuneEditor::paint (juce::Graphics& g)
 {
-    g.fillAll (kBg);
+    g.addTransform (juce::AffineTransform::scale (scaler.scale (*this)));
+    drawWindow (g, scaler.design());
     drawHeader (g, headerArea, "TUNE", "V-03 / PITCH CORRECTION");
-    g.setFont (mono (10.5f, true)); g.setColour (kMuted);
+    g.setFont (tracked (mono (9.5f, true), 0.12f)); g.setColour (kMuted);
     g.drawText ("STYLE", styleBox.getBounds().translated (-70, 0).withWidth (62), juce::Justification::centredRight);
 
     // tuner panel
@@ -214,14 +223,13 @@ void TuneEditor::paint (juce::Graphics& g)
     const bool v = e.guiVoiced.load();
     const int tgt = e.guiTarget.load();
     auto readout = left.removeFromTop (88);
-    g.setColour (juce::Colours::black); g.fillRoundedRectangle (readout.toFloat(), 4.0f);
-    g.setColour (kLine); g.drawRoundedRectangle (readout.toFloat().reduced (0.5f), 4.0f, 1.0f);
-    g.setColour (v && tgt >= 0 ? flux (5) : kLine.brighter (0.3f));
-    g.setFont (mono (46.0f, true));
-    g.drawText (v && tgt >= 0 ? noteName (tgt) : "--", readout.withTrimmedBottom (26), juce::Justification::centred);
+    drawGlass (g, readout.toFloat(), 6.0f);
+    g.setFont (mono (44.0f, true));
+    if (v && tgt >= 0) drawGlowText (g, noteName (tgt), readout.withTrimmedBottom (26).toFloat(), juce::Justification::centred, flux (5));
+    else { g.setColour (kLine.brighter (0.2f)); g.drawText ("--", readout.withTrimmedBottom (26), juce::Justification::centred); }
     // cents meter: how far the singer is from the target note
     auto meter = readout.removeFromBottom (24).reduced (14, 8);
-    g.setColour (kLine); g.fillRect (meter);
+    g.setColour (juce::Colour (0xff15171c)); g.fillRoundedRectangle (meter.toFloat(), 2.0f);
     const float cents = v && tgt >= 0 ? juce::jlimit (-50.0f, 50.0f, (e.guiInMidi.load() - (float) tgt) * 100.0f) : 0.0f;
     const float cx = (float) meter.getCentreX(), px = cx + cents / 50.0f * (float) meter.getWidth() * 0.5f;
     const int fi = juce::jlimit (2, 6, 2 + (int) (std::fabs (cents) / 50.0f * 4.99f));
@@ -236,7 +244,7 @@ void TuneEditor::paint (juce::Graphics& g)
 
 void TuneEditor::resized()
 {
-    auto area = getLocalBounds().reduced (kGap, 0);
+    auto area = scaler.design().reduced (kGap, 0);
     area.removeFromTop (kGap);
     headerArea = area.removeFromTop (kHeader);
     area.removeFromTop (kGap);
@@ -282,4 +290,5 @@ void TuneEditor::resized()
                 }
         }
     }
+    scaler.apply (*this);
 }

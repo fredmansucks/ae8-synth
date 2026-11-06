@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(AE8 VERSION 1.0.0)
+project(AE8 VERSION 1.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,6 +15,17 @@ endif()
 add_subdirectory(${JUCE_DIR} JUCE)
 
 set(AE8_FORMATS "VST3;Standalone" CACHE STRING "Plugin formats to build")
+
+# Brand fonts (Archivo + IBM Plex Mono, SIL Open Font License), compiled into every plugin
+juce_add_binary_data(AE8Fonts
+  HEADER_NAME AE8Fonts.h
+  NAMESPACE AE8Fonts
+  SOURCES
+    Shared/fonts/Archivo-ExtraBold.ttf
+    Shared/fonts/Archivo-SemiBold.ttf
+    Shared/fonts/IBMPlexMono-Regular.ttf
+    Shared/fonts/IBMPlexMono-SemiBold.ttf)
+set_target_properties(AE8Fonts PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 juce_add_plugin(AE8
   COMPANY_NAME "AE-8"
@@ -43,7 +54,7 @@ target_compile_definitions(AE8 PUBLIC
   JUCE_DISPLAY_SPLASH_SCREEN=0)
 
 target_link_libraries(AE8
-  PRIVATE juce::juce_audio_utils
+  PRIVATE juce::juce_audio_utils AE8Fonts
   PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
 
 # ---------------------------------------------------------------- AE-8 TUNE
@@ -74,7 +85,7 @@ target_compile_definitions(AE8TUNE PUBLIC
   JUCE_DISPLAY_SPLASH_SCREEN=0)
 
 target_link_libraries(AE8TUNE
-  PRIVATE juce::juce_audio_utils
+  PRIVATE juce::juce_audio_utils AE8Fonts
   PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
 
 juce_add_plugin(AE8TAPE
@@ -104,7 +115,7 @@ target_compile_definitions(AE8TAPE PUBLIC
   JUCE_DISPLAY_SPLASH_SCREEN=0)
 
 target_link_libraries(AE8TAPE
-  PRIVATE juce::juce_audio_utils
+  PRIVATE juce::juce_audio_utils AE8Fonts
   PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
 
 juce_add_plugin(AE8CHOP
@@ -135,5 +146,5 @@ target_compile_definitions(AE8CHOP PUBLIC
   JUCE_USE_MP3AUDIOFORMAT=1)
 
 target_link_libraries(AE8CHOP
-  PRIVATE juce::juce_audio_utils
+  PRIVATE juce::juce_audio_utils AE8Fonts
   PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)

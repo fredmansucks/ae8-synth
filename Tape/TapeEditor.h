@@ -50,6 +50,7 @@ private:
 
     TapeProcessor& proc;
     TapeLookAndFeel lnf;
+    ae8brand::Scaler scaler;
     std::vector<std::unique_ptr<Ctl>> ctls;
     std::vector<Section> bottom;
     ReelsView reels;

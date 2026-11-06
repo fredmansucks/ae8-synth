@@ -188,3 +188,8 @@ Sampler instrument for chopping (VST3 + Standalone). Load it on a MIDI track and
 **Color:** LP / HP / BP filter with resonance, Bits and Rate (SP-style crunch), Drive.
 
 The sample is saved inside your Ableton set (up to 5 minutes), so projects still open if the file moves.
+
+## v1.1: interface refresh
+
+All four plugins share a new interface finish: machined knobs with lit value rings, recessed glass displays, LED switches, and the brand fonts (Archivo and IBM Plex Mono, SIL Open Font License, compiled in) on every system.
+Every window can now be resized from 70% to 200%: drag the bottom-right corner. Settings, presets and saved projects are unchanged.
