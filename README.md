@@ -1,4 +1,8 @@
-# AE-8 POLY
+# AE-8 Software Suite
+
+**Current releases/build targets:** POLY, TUNE, TAPE, MEMORY, FLIP (VST3 + standalone) and CRATE (standalone desktop application). **CHOP is retired as a separate downloadable plugin**, but its DSP and UI source files are retained under `Chop/` because FLIP uses that code. Existing Ableton projects using CHOP may still need the legacy CHOP VST3; do not delete a locally installed copy until those projects have been migrated.
+
+## AE-8 POLY
 
 A 12-voice polysynth VST3 for Ableton Live by AE-8. Analog-style oscillators and filters in the spirit of the classic 70s/80s polys, a 2-operator FM engine for DX-style keys, bells and basses, and a tempo-synced arpeggiator. 67 factory presets.
 
@@ -166,7 +170,7 @@ Tape machine effect (VST3 + Standalone). The signal is recorded to a virtual tap
 Programs: Master Deck 15 IPS, Hot Mixdown, Cassette Warm, Lo-Fi Worn, Seasick, Half Speed, Tape Stop FX, Dirty Bus.
 Latency: 30 ms, reported to the host so Ableton compensates automatically.
 
-## AE-8 CHOP
+## Legacy AE-8 CHOP (not built or distributed)
 
 Sampler instrument for chopping (VST3 + Standalone). Load it on a MIDI track and drop a sample on the waveform.
 
@@ -236,7 +240,7 @@ hardware-specific exports. These are planned follow-on milestones.
 
 ## Build & test
 
-Build all seven products with `cmake --build build --config Release --parallel`.
+Build the six active products with `cmake --build build --config Release --parallel`.
 The CI workflow packages VST3s and standalone Windows executables. The CMake
 tests `MemoryDSP` and `FlipVariations` run under CTest.
 
