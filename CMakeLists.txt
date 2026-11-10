@@ -148,3 +148,27 @@ target_compile_definitions(AE8CHOP PUBLIC
 target_link_libraries(AE8CHOP
   PRIVATE juce::juce_audio_utils AE8Fonts
   PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
+
+# ---------------------------------------------------------------- AE-8 MEMORY
+juce_add_plugin(AE8MEMORY
+  COMPANY_NAME "AE-8"
+  PRODUCT_NAME "AE-8 MEMORY"
+  PLUGIN_MANUFACTURER_CODE Aeau
+  PLUGIN_CODE Ae8m
+  IS_SYNTH FALSE
+  NEEDS_MIDI_INPUT FALSE
+  NEEDS_MIDI_OUTPUT FALSE
+  IS_MIDI_EFFECT FALSE
+  EDITOR_WANTS_KEYBOARD_FOCUS FALSE
+  COPY_PLUGIN_AFTER_BUILD FALSE
+  VST3_CATEGORIES Fx "Distortion"
+  FORMATS ${AE8_FORMATS})
+juce_generate_juce_header(AE8MEMORY)
+target_sources(AE8MEMORY PRIVATE Memory/MemoryProcessor.cpp Memory/MemoryEditor.cpp)
+target_compile_definitions(AE8MEMORY PUBLIC
+  JUCE_WEB_BROWSER=0
+  JUCE_USE_CURL=0
+  JUCE_VST3_CAN_REPLACE_VST2=0
+  JUCE_DISPLAY_SPLASH_SCREEN=0)
+target_link_libraries(AE8MEMORY PRIVATE juce::juce_audio_utils AE8Fonts
+  PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
