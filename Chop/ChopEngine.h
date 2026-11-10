@@ -8,6 +8,9 @@
 //  color    : drive -> bit / rate crush -> state-variable filter
 
 #include "ChopParams.h"
+#ifdef AE8_FLIP
+#include "../Flip/FlipVariations.h"
+#endif
 #include <array>
 #include <atomic>
 #include <cmath>
@@ -52,6 +55,9 @@ public:
     std::atomic<float> guiPlayhead { -1 };                   // 0..1 of the file, last voice
     std::atomic<int> guiLastSlice { -1 };
     std::atomic<int> triggerCount { 0 };
+#ifdef AE8_FLIP
+    std::atomic<int> flipMode { 0 };
+#endif
 
     ChopEngine() { for (int i = 0; i < NUM_PARAMS; ++i) prm[(size_t) i] = paramDefs()[(size_t) i].def; }
     void setParam (int i, float v) { prm[(size_t) i] = v; }
@@ -85,6 +91,9 @@ public:
         for (auto& e : events) ev.push_back (e);
         events.clear();
         std::stable_sort (ev.begin(), ev.end(), [] (auto& a, auto& b) { return a.offset < b.offset; });
+#ifdef AE8_FLIP
+        for (auto& e : ev) e.note = ae8flip::mapPad (e.note, flipMode.load());
+#endif
 
         const bool repeatOn = prm[REPEAT] > 0.5f;
         static const double rates[4] = { 1.0, 0.5, 0.25, 0.125 };   // in quarter notes
