@@ -172,3 +172,8 @@ target_compile_definitions(AE8MEMORY PUBLIC
   JUCE_DISPLAY_SPLASH_SCREEN=0)
 target_link_libraries(AE8MEMORY PRIVATE juce::juce_audio_utils AE8Fonts
   PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
+
+# Standalone framework-free MEMORY DSP smoke test (also built by CI)
+add_executable(AE8MemoryDSPTest Memory/tests/memory_test.cpp)
+enable_testing()
+add_test(NAME MemoryDSP COMMAND AE8MemoryDSPTest)
