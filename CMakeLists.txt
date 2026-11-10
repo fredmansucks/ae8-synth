@@ -148,3 +148,76 @@ target_compile_definitions(AE8CHOP PUBLIC
 target_link_libraries(AE8CHOP
   PRIVATE juce::juce_audio_utils AE8Fonts
   PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
+
+# ---------------------------------------------------------------- AE-8 MEMORY
+juce_add_plugin(AE8MEMORY
+  COMPANY_NAME "AE-8"
+  PRODUCT_NAME "AE-8 MEMORY"
+  PLUGIN_MANUFACTURER_CODE Aeau
+  PLUGIN_CODE Ae8m
+  IS_SYNTH FALSE
+  NEEDS_MIDI_INPUT FALSE
+  NEEDS_MIDI_OUTPUT FALSE
+  IS_MIDI_EFFECT FALSE
+  EDITOR_WANTS_KEYBOARD_FOCUS FALSE
+  COPY_PLUGIN_AFTER_BUILD FALSE
+  VST3_CATEGORIES Fx "Distortion"
+  FORMATS ${AE8_FORMATS})
+juce_generate_juce_header(AE8MEMORY)
+target_sources(AE8MEMORY PRIVATE Memory/MemoryProcessor.cpp Memory/MemoryEditor.cpp)
+target_compile_definitions(AE8MEMORY PUBLIC
+  JUCE_WEB_BROWSER=0
+  JUCE_USE_CURL=0
+  JUCE_VST3_CAN_REPLACE_VST2=0
+  JUCE_DISPLAY_SPLASH_SCREEN=0)
+target_link_libraries(AE8MEMORY PRIVATE juce::juce_audio_utils AE8Fonts
+  PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
+
+# Standalone framework-free MEMORY DSP smoke test (also built by CI)
+add_executable(AE8MemoryDSPTest Memory/tests/memory_test.cpp)
+enable_testing()
+add_test(NAME MemoryDSP COMMAND AE8MemoryDSPTest)
+
+# ---------------------------------------------------------------- AE-8 FLIP
+# Build the proven CHOP sampler as a separate instrument; AE8_FLIP enables
+# distinct identity, presets and MIDI-driven rearrangement mappings.
+juce_add_plugin(AE8FLIP
+  COMPANY_NAME "AE-8"
+  PRODUCT_NAME "AE-8 FLIP"
+  PLUGIN_MANUFACTURER_CODE Aeau
+  PLUGIN_CODE Ae8f
+  IS_SYNTH TRUE
+  NEEDS_MIDI_INPUT TRUE
+  NEEDS_MIDI_OUTPUT FALSE
+  IS_MIDI_EFFECT FALSE
+  EDITOR_WANTS_KEYBOARD_FOCUS FALSE
+  COPY_PLUGIN_AFTER_BUILD FALSE
+  VST3_CATEGORIES Instrument Sampler
+  FORMATS ${AE8_FORMATS})
+juce_generate_juce_header(AE8FLIP)
+target_sources(AE8FLIP PRIVATE Chop/ChopProcessor.cpp Chop/ChopEditor.cpp)
+target_compile_definitions(AE8FLIP PUBLIC
+  AE8_FLIP=1
+  JUCE_WEB_BROWSER=0
+  JUCE_USE_CURL=0
+  JUCE_VST3_CAN_REPLACE_VST2=0
+  JUCE_DISPLAY_SPLASH_SCREEN=0
+  JUCE_USE_MP3AUDIOFORMAT=1)
+target_link_libraries(AE8FLIP PRIVATE juce::juce_audio_utils AE8Fonts
+  PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
+
+add_executable(AE8FlipVariationTest Flip/tests/flip_test.cpp)
+add_test(NAME FlipVariations COMMAND AE8FlipVariationTest)
+
+# ---------------------------------------------------------------- AE-8 CRATE (standalone library application)
+juce_add_gui_app(AE8CRATE
+  COMPANY_NAME "AE-8"
+  PRODUCT_NAME "AE-8 CRATE")
+juce_generate_juce_header(AE8CRATE)
+target_sources(AE8CRATE PRIVATE Crate/Main.cpp)
+target_compile_definitions(AE8CRATE PUBLIC
+  JUCE_WEB_BROWSER=0
+  JUCE_USE_CURL=0
+  JUCE_DISPLAY_SPLASH_SCREEN=0)
+target_link_libraries(AE8CRATE PRIVATE juce::juce_audio_utils AE8Fonts
+  PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)

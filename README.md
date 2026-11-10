@@ -193,3 +193,52 @@ The sample is saved inside your Ableton set (up to 5 minutes), so projects still
 
 All four plugins share a new interface finish: machined knobs with lit value rings, recessed glass displays, LED switches, and the brand fonts (Archivo and IBM Plex Mono, SIL Open Font License, compiled in) on every system.
 Every window can now be resized from 70% to 200%: drag the bottom-right corner. Settings, presets and saved projects are unchanged.
+
+---
+
+# AE-8 NEXT GENERATION — Development previews
+
+The same repository now also contains three **experimental** products. These are not
+release-ready and should be used only after successful CI builds and Ableton tests.
+
+## AE-8 MEMORY (audio FX / VST3 + standalone)
+
+Original vintage-digital coloration engine with sample-rate reduction (3–48 kHz),
+4–16-bit quantization, adjustable bandwidth, saturation, wet/dry and five factory
+programs. The audio engine lives in `Memory/MemoryEngine.h` and has no JUCE dependency.
+
+**Not yet implemented:** historical hardware-measured emulations, sample import,
+sample-memory budget display, waveform playback or export. MEMORY v0.1 is an
+audio insert effect and processes audio from its host track.
+
+## AE-8 FLIP (sampler instrument / VST3 + standalone)
+
+FLIP shares the proven CHOP sampler and adds a distinct plugin identity and
+seven selectable MIDI/pad rearrangement mappings: Original Chops, Reverse Phrase,
+Displaced, Rhythmic Invert, Half Time, Stutter Skip, and Alternate Starts.
+
+Load your audio sample exactly as you would in CHOP and select a program in the
+header. The programs deterministically remap MIDI and onscreen pad triggers.
+They do not yet generate a complete arranged song or export a new MIDI sequence.
+CHOP itself remains available and unchanged in normal builds.
+
+## AE-8 CRATE (Windows desktop sample explorer)
+
+CRATE is a **standalone** application, not a VST3. It scans a selected sample
+folder recursively without copying or modifying its files, supports filename/path
+search, favorites (persisted in the user's application data), blind-dig browsing,
+instant audio audition, waveform display and revealing the current file in Explorer.
+You can also drop a sample folder from Explorer onto the app to scan it.
+
+**Not yet implemented:** smart similarity analysis, BPM/key detection, virtual
+collections, automatic forgotten-sample resurfacing, drag-out to Ableton or
+hardware-specific exports. These are planned follow-on milestones.
+
+## Build & test
+
+Build all seven products with `cmake --build build --config Release --parallel`.
+The CI workflow packages VST3s and standalone Windows executables. The CMake
+tests `MemoryDSP` and `FlipVariations` run under CTest.
+
+Please review GitHub Actions logs and manually test audio before considering
+these products an official AE-8 release. JUCE licensing requirements still apply.
