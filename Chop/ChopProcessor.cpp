@@ -1,5 +1,8 @@
 #include "ChopProcessor.h"
 #include "ChopEditor.h"
+#ifdef AE8_FLIP
+#include "../Flip/FlipVariations.h"
+#endif
 
 using namespace ae8chop;
 
@@ -40,7 +43,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChopProcessor::createLayout(
 
 ChopProcessor::ChopProcessor()
     : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
-      apvts (*this, nullptr, "AE8CHOP", createLayout())
+      apvts (*this, nullptr,
+#ifdef AE8_FLIP
+      "AE8FLIP",
+#else
+      "AE8CHOP",
+#endif
+      createLayout())
 {
     formats.registerBasicFormats();
     for (int i = 0; i < NUM_PARAMS; ++i)
@@ -81,8 +90,13 @@ void ChopProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBu
     for (const auto m : midi)
     {
         const auto msg = m.getMessage();
-        if (msg.isNoteOn()) events.push_back ({ m.samplePosition, msg.getNoteNumber(), msg.getFloatVelocity(), true });
-        else if (msg.isNoteOff()) events.push_back ({ m.samplePosition, msg.getNoteNumber(), 0.0f, false });
+        #ifdef AE8_FLIP
+        const int mapped = ae8flip::mapPad(msg.getNoteNumber(), currentProgram.load());
+#else
+        const int mapped = msg.getNoteNumber();
+#endif
+        if (msg.isNoteOn()) events.push_back ({ m.samplePosition, mapped, msg.getFloatVelocity(), true });
+        else if (msg.isNoteOff()) events.push_back ({ m.samplePosition, mapped, 0.0f, false });
         else if (msg.isAllNotesOff() || msg.isAllSoundOff()) engine.allNotesOff();
     }
     midi.clear();
