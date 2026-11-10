@@ -36,7 +36,7 @@ public:
    audition.onClick=[this]{ if(transport.isPlaying())transport.stop(); else transport.start(); };
    addAndMakeVisible(audition);
    star.setButtonText("TOGGLE FAVORITE");
-   star.onClick=[this]{if(selected.isEmpty())return;const auto k=selected.getFullPathName(); if(favoritePaths.contains(k))favoritePaths.removeString(k);else favoritePaths.add(k);saveFavorites();refresh();};
+   star.onClick=[this]{if(!selected.existsAsFile())return;const auto k=selected.getFullPathName(); if(favoritePaths.contains(k))favoritePaths.removeString(k);else favoritePaths.add(k);saveFavorites();refresh();};
    addAndMakeVisible(star);
    showLocation.setButtonText("REVEAL FILE");
    showLocation.onClick=[this]{if(selected.existsAsFile())selected.revealToUser();};
