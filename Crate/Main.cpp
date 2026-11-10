@@ -96,7 +96,7 @@ public:
      const auto area=waveArea.toFloat();
      drawGlass(g,area,5);
      g.setColour(flux(2));
-     thumbnail.drawChannels(g,area.reduced(8,5),0.0,thumbnail.getTotalLength(),0.9f);
+     thumbnail.drawChannels(g,waveArea.reduced(8,5),0.0,thumbnail.getTotalLength(),0.9f);
    }
    g.setColour(kMuted);g.setFont(mono(11));
    g.drawText("AE-8 / YOUR SAMPLE ARCHIVE / LOCAL FILES STAY IN PLACE",getLocalBounds().removeFromBottom(24).reduced(16,0),juce::Justification::centredLeft);
