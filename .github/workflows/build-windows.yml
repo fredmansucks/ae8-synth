@@ -31,6 +31,8 @@ jobs:
           Copy-Item "build/AE8TAPE_artefacts/Release/Standalone/AE-8 TAPE.exe" dist/
           Copy-Item -Recurse "build/AE8CHOP_artefacts/Release/VST3/AE-8 CHOP.vst3" dist/
           Copy-Item "build/AE8CHOP_artefacts/Release/Standalone/AE-8 CHOP.exe" dist/
+          Copy-Item -Recurse "build/AE8MEMORY_artefacts/Release/VST3/AE-8 MEMORY.vst3" dist/
+          Copy-Item "build/AE8MEMORY_artefacts/Release/Standalone/AE-8 MEMORY.exe" dist/
           Copy-Item README.md dist/
 
       - uses: actions/upload-artifact@v4
