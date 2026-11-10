@@ -234,9 +234,21 @@ search, favorites (persisted in the user's application data), blind-dig browsing
 instant audio audition, waveform display and revealing the current file in Explorer.
 You can also drop a sample folder from Explorer onto the app to scan it.
 
-**Not yet implemented:** smart similarity analysis, BPM/key detection, virtual
-collections, automatic forgotten-sample resurfacing, drag-out to Ableton or
-hardware-specific exports. These are planned follow-on milestones.
+**CRATE v0.2 development changes:** Create named virtual crates, choose a
+crate from the dropdown, add or remove the selected sample, and delete a crate.
+Collections store **absolute file paths**, not copies of audio. They are saved
+under the user's application-data AE-8 folder and remain available after restart.
+When you open a crate, previously saved files from other folders are included if
+they still exist on disk. Deleting a crate never deletes the original files.
+
+To send a sample to Ableton: click a sample to select it, then **drag the
+"DRAG SAMPLE TO ABLETON" control** onto an Ableton audio track, Simpler, or a
+sampler that accepts file drops. CRATE uses native operating-system file dragging.
+Actual Ableton drag/drop compatibility must be confirmed on Windows during manual
+testing; the GitHub build only verifies compilation.
+
+**Not yet implemented:** smart similarity analysis, BPM/key detection, forgotten
+sample resurfacing, automatic crate suggestions, and hardware export.
 
 ## Build & test
 
