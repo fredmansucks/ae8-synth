@@ -373,6 +373,9 @@ void ChopProcessor::setStateInformation (const void* data, int size)
     tree.removeChild (smp, nullptr);
     restoring = true;
     currentProgram = (int) tree.getProperty ("program", 0);
+#ifdef AE8_FLIP
+    engine.flipMode = currentProgram.load();
+#endif
     apvts.replaceState (tree);
 
     if (smp.isValid())
