@@ -659,7 +659,11 @@ void ChopEditor::paint (juce::Graphics& g)
 {
     g.addTransform (juce::AffineTransform::scale (scaler.scale (*this)));
     drawWindow (g, scaler.design());
+#ifdef AE8_FLIP
+    drawHeader (g, headerArea, "FLIP", "F-01 / SAMPLE REARRANGEMENT");
+#else
     drawHeader (g, headerArea, "CHOP", "C-04 / SAMPLER");
+#endif
     g.setFont (tracked (mono (9.5f, true), 0.12f)); g.setColour (kMuted);
     g.drawText ("PROGRAM", presetBox.getBounds().translated (-80, 0).withWidth (72), juce::Justification::centredRight);
 
