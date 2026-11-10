@@ -60,6 +60,7 @@ public:
     void fileDragEnter (const juce::StringArray&, int, int) override { dragHover = true; repaint(); }
     void fileDragExit (const juce::StringArray&) override { dragHover = false; repaint(); }
     void browse();
+    bool cutTool = false; // FLIP: single click places a new slice marker
     double viewStart = 0, viewLen = 0;          // samples
     std::function<void()> onSelect, onViewChanged;
 private:
@@ -144,6 +145,7 @@ private:
     Chip *findBtn = nullptr, *randomBtn = nullptr, *bpmSync = nullptr, *keySync = nullptr, *warpBtn = nullptr,
          *bankA = nullptr, *bankB = nullptr, *revBtn = nullptr, *oneBtn = nullptr, *loopBtn = nullptr,
          *copyBtn = nullptr, *pasteBtn = nullptr, *repeatBtn = nullptr, *tripBtn = nullptr;
+    Chip* cutBtn = nullptr;
     std::array<Chip*, 4> chokeBtns {};
     std::unique_ptr<MidiDragChip> midiBtn;
     juce::TextButton prevBtn { "<" }, nextBtn { ">" };
