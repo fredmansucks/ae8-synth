@@ -1,8 +1,5 @@
 #include "ChopProcessor.h"
 #include "ChopEditor.h"
-#ifdef AE8_FLIP
-#include "../Flip/FlipVariations.h"
-#endif
 
 using namespace ae8chop;
 
@@ -90,13 +87,8 @@ void ChopProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBu
     for (const auto m : midi)
     {
         const auto msg = m.getMessage();
-        #ifdef AE8_FLIP
-        const int mapped = ae8flip::mapPad(msg.getNoteNumber(), currentProgram.load());
-#else
-        const int mapped = msg.getNoteNumber();
-#endif
-        if (msg.isNoteOn()) events.push_back ({ m.samplePosition, mapped, msg.getFloatVelocity(), true });
-        else if (msg.isNoteOff()) events.push_back ({ m.samplePosition, mapped, 0.0f, false });
+        if (msg.isNoteOn()) events.push_back ({ m.samplePosition, msg.getNoteNumber(), msg.getFloatVelocity(), true });
+        else if (msg.isNoteOff()) events.push_back ({ m.samplePosition, msg.getNoteNumber(), 0.0f, false });
         else if (msg.isAllNotesOff() || msg.isAllSoundOff()) engine.allNotesOff();
     }
     midi.clear();
@@ -313,6 +305,9 @@ void ChopProcessor::setCurrentProgram (int index)
     const auto& s = presets();
     if (! juce::isPositiveAndBelow (index, (int) s.size())) return;
     currentProgram = index;
+#ifdef AE8_FLIP
+    engine.flipMode = index;
+#endif
     static const int touched[] = { LAYOUT, VOICE, REPEAT, REPEAT_RATE, TRIPLET, GLIDE, SWING, VEL, CUTOFF, RES, FTYPE, BITS, RATE, DRIVE, WARP };
     std::array<float, NUM_PARAMS> vals {};
     for (int i = 0; i < NUM_PARAMS; ++i) vals[(size_t) i] = paramDefs()[(size_t) i].def;
