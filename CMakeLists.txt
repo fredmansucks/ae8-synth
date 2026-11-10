@@ -208,3 +208,16 @@ target_link_libraries(AE8FLIP PRIVATE juce::juce_audio_utils AE8Fonts
 
 add_executable(AE8FlipVariationTest Flip/tests/flip_test.cpp)
 add_test(NAME FlipVariations COMMAND AE8FlipVariationTest)
+
+# ---------------------------------------------------------------- AE-8 CRATE (standalone library application)
+juce_add_gui_app(AE8CRATE
+  COMPANY_NAME "AE-8"
+  PRODUCT_NAME "AE-8 CRATE")
+juce_generate_juce_header(AE8CRATE)
+target_sources(AE8CRATE PRIVATE Crate/Main.cpp)
+target_compile_definitions(AE8CRATE PUBLIC
+  JUCE_WEB_BROWSER=0
+  JUCE_USE_CURL=0
+  JUCE_DISPLAY_SPLASH_SCREEN=0)
+target_link_libraries(AE8CRATE PRIVATE juce::juce_audio_utils AE8Fonts
+  PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
