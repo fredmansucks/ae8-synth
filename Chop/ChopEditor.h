@@ -140,6 +140,9 @@ private:
     ChoiceChips *chopModes = nullptr, *layoutChips = nullptr, *voiceChips = nullptr, *rateChips = nullptr, *ftypeChips = nullptr;
     juce::Slider *sensBar = nullptr, *slicesBar = nullptr;
     juce::ComboBox divisionBox, keyBox, targetBox, presetBox;
+#ifdef AE8_FLIP
+    juce::ComboBox flipBox;
+#endif
     juce::Label bpmLabel;
     Chip *findBtn = nullptr, *randomBtn = nullptr, *bpmSync = nullptr, *keySync = nullptr, *warpBtn = nullptr,
          *bankA = nullptr, *bankB = nullptr, *revBtn = nullptr, *oneBtn = nullptr, *loopBtn = nullptr,

@@ -10,14 +10,6 @@ struct Preset { const char* name; std::vector<std::pair<int, float>> v; };
 // Programs change how CHOP plays and colours the sound; they never replace your sample or chops.
 inline const std::vector<Preset>& presets()
 {
-#ifdef AE8_FLIP
-    static const std::vector<Preset> v = {
-      { "Original Chops", {} }, { "Reverse Phrase", {} }, { "Displaced", {} },
-      { "Rhythmic Invert", {} }, { "Half Time", {} }, { "Stutter Skip", {} },
-      { "Alternate Starts", {} }
-    };
-    return v;
-#else
     static const std::vector<Preset> s =
     {
         { "Clean Chop",     { { VOICE, 0 } } },
@@ -30,7 +22,6 @@ inline const std::vector<Preset>& presets()
         { "Lo-Fi Phone",    { { VOICE, 0 }, { FTYPE, 2 }, { CUTOFF, 1600 }, { RES, 0.35f }, { BITS, 8 }, { DRIVE, 0.5f } } },
     };
     return s;
-#endif
 }
 
 inline juce::Colour sliceColour (int i)

@@ -27,7 +27,9 @@ void MemoryProcessor::processBlock(juce::AudioBuffer<float>& b,juce::MidiBuffer&
   engine.set(val("rate"),(int)std::lround(val("bits")),val("bandwidth"),val("drive"),val("mix"));
   float* channels[2] = { b.getWritePointer(0), b.getNumChannels()>1 ? b.getWritePointer(1) : nullptr };
   engine.process(channels,b.getNumChannels(),b.getNumSamples());
-  b.applyGain(juce::Decibels::decibelsToGain(val("output")));
+  const float g=juce::Decibels::decibelsToGain(val("output"));
+  b.applyGainRamp(0,b.getNumSamples(),lastGain<0?g:lastGain,g);
+  lastGain=g;
 }
 void MemoryProcessor::setCurrentProgram(int index) {
   if(index<0||index>=getNumPrograms())return;

@@ -118,7 +118,32 @@ target_link_libraries(AE8TAPE
   PRIVATE juce::juce_audio_utils AE8Fonts
   PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
 
-# CHOP's shared DSP and UI sources are retained for AE8FLIP; no CHOP product target.
+# ---------------------------------------------------------------- AE-8 CHOP
+# Kept as its own product (same plugin ID as before) so existing Ableton sets and templates keep loading it.
+juce_add_plugin(AE8CHOP
+  COMPANY_NAME "AE-8"
+  PRODUCT_NAME "AE-8 CHOP"
+  PLUGIN_MANUFACTURER_CODE Aeau
+  PLUGIN_CODE Ae8c
+  IS_SYNTH TRUE
+  NEEDS_MIDI_INPUT TRUE
+  NEEDS_MIDI_OUTPUT FALSE
+  IS_MIDI_EFFECT FALSE
+  EDITOR_WANTS_KEYBOARD_FOCUS FALSE
+  COPY_PLUGIN_AFTER_BUILD FALSE
+  VST3_CATEGORIES Instrument Sampler
+  FORMATS ${AE8_FORMATS})
+juce_generate_juce_header(AE8CHOP)
+target_sources(AE8CHOP PRIVATE Chop/ChopProcessor.cpp Chop/ChopEditor.cpp)
+target_compile_definitions(AE8CHOP PUBLIC
+  JUCE_WEB_BROWSER=0
+  JUCE_USE_CURL=0
+  JUCE_VST3_CAN_REPLACE_VST2=0
+  JUCE_DISPLAY_SPLASH_SCREEN=0
+  JUCE_USE_MP3AUDIOFORMAT=1)
+target_link_libraries(AE8CHOP PRIVATE juce::juce_audio_utils AE8Fonts
+  PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
+
 
 # ---------------------------------------------------------------- AE-8 MEMORY
 juce_add_plugin(AE8MEMORY

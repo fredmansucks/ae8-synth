@@ -26,6 +26,7 @@ public:
   static juce::AudioProcessorValueTreeState::ParameterLayout layout();
 private:
   ae8memory::Engine engine;
+  float lastGain = -1.0f;
   std::atomic<int> program {0};
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MemoryProcessor)
 };

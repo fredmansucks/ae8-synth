@@ -12,6 +12,9 @@ enum P
     BPM_SYNC, KEY_SYNC, TARGET_KEY, WARP,
     LAYOUT, VOICE, REPEAT, REPEAT_RATE, TRIPLET, GLIDE, SWING, VEL,
     CUTOFF, RES, FTYPE, BITS, RATE, DRIVE,
+#ifdef AE8_FLIP
+    FLIP_MODE,
+#endif
     NUM_PARAMS
 };
 
@@ -48,6 +51,9 @@ inline const std::vector<ParamDef>& paramDefs()
         { "bits", "Bits", Float, 4, 16, 16, 0, {}, "bits" },
         { "rate", "Rate", Float, 2000, 48000, 48000, 12000, {}, "Hz" },
         { "drive", "Drive", Float, 0, 1, 0, 0, {}, "%" },
+#ifdef AE8_FLIP
+        { "flipmode", "Flip Mode", Choice, 0, 6, 0, 0, { "Original Chops", "Reverse Phrase", "Displaced", "Rhythmic Invert", "Half Time", "Stutter Skip", "Alternate Starts" }, "" },
+#endif
     };
     return d;
 }

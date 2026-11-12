@@ -1,6 +1,6 @@
 # AE-8 Software Suite
 
-**Current releases/build targets:** POLY, TUNE, TAPE, MEMORY, FLIP (VST3 + standalone) and CRATE (standalone desktop application). **CHOP is retired as a separate downloadable plugin**, but its DSP and UI source files are retained under `Chop/` because FLIP uses that code. Existing Ableton projects using CHOP may still need the legacy CHOP VST3; do not delete a locally installed copy until those projects have been migrated.
+**Current releases/build targets:** POLY, TUNE, TAPE, CHOP, MEMORY, FLIP (VST3 + standalone) and CRATE (standalone desktop application). CHOP and FLIP are built from the same sampler code: CHOP keeps its original plugin ID so existing Ableton sets and templates keep working, and FLIP adds the pad-rearrangement modes.
 
 ## AE-8 POLY
 
@@ -170,7 +170,7 @@ Tape machine effect (VST3 + Standalone). The signal is recorded to a virtual tap
 Programs: Master Deck 15 IPS, Hot Mixdown, Cassette Warm, Lo-Fi Worn, Seasick, Half Speed, Tape Stop FX, Dirty Bus.
 Latency: 30 ms, reported to the host so Ableton compensates automatically.
 
-## Legacy AE-8 CHOP (not built or distributed)
+## AE-8 CHOP
 
 Sampler instrument for chopping (VST3 + Standalone). Load it on a MIDI track and drop a sample on the waveform.
 
@@ -221,10 +221,13 @@ FLIP shares the proven CHOP sampler and adds a distinct plugin identity and
 seven selectable MIDI/pad rearrangement mappings: Original Chops, Reverse Phrase,
 Displaced, Rhythmic Invert, Half Time, Stutter Skip, and Alternate Starts.
 
-Load your audio sample exactly as you would in CHOP and select a program in the
-header. The programs deterministically remap MIDI and onscreen pad triggers.
+Load your audio sample exactly as you would in CHOP and pick a mode in the **FLIP** box in the
+header. Modes remap MIDI and onscreen pad triggers in the SLICES pad layout; PITCH layout is not
+affected. Modes only use the slices that exist, so short chops never point pads at empty slices.
+The PROGRAM box holds the same sound presets as CHOP, and changing the FLIP mode never touches
+your sound settings. A held note always releases the slice it started, even if you change modes.
+FLIP sets saved before the FLIP box existed reopen in the mode they were saved with.
 They do not yet generate a complete arranged song or export a new MIDI sequence.
-CHOP itself remains available and unchanged in normal builds.
 
 ## AE-8 CRATE (Windows desktop sample explorer)
 

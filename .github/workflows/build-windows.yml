@@ -23,7 +23,7 @@ jobs:
       - name: Build
         run: cmake --build build --config Release --parallel
 
-      - name: Test MEMORY DSP
+      - name: Test MEMORY and FLIP DSP
         run: ctest --test-dir build -C Release --output-on-failure
 
       - name: Package
@@ -36,6 +36,8 @@ jobs:
           Copy-Item "build/AE8TUNE_artefacts/Release/Standalone/AE-8 TUNE.exe" dist/
           Copy-Item -Recurse "build/AE8TAPE_artefacts/Release/VST3/AE-8 TAPE.vst3" dist/
           Copy-Item "build/AE8TAPE_artefacts/Release/Standalone/AE-8 TAPE.exe" dist/
+          Copy-Item -Recurse "build/AE8CHOP_artefacts/Release/VST3/AE-8 CHOP.vst3" dist/
+          Copy-Item "build/AE8CHOP_artefacts/Release/Standalone/AE-8 CHOP.exe" dist/
           Copy-Item -Recurse "build/AE8MEMORY_artefacts/Release/VST3/AE-8 MEMORY.vst3" dist/
           Copy-Item "build/AE8MEMORY_artefacts/Release/Standalone/AE-8 MEMORY.exe" dist/
           Copy-Item -Recurse "build/AE8FLIP_artefacts/Release/VST3/AE-8 FLIP.vst3" dist/

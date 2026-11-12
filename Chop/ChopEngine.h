@@ -55,9 +55,6 @@ public:
     std::atomic<float> guiPlayhead { -1 };                   // 0..1 of the file, last voice
     std::atomic<int> guiLastSlice { -1 };
     std::atomic<int> triggerCount { 0 };
-#ifdef AE8_FLIP
-    std::atomic<int> flipMode { 0 };
-#endif
 
     ChopEngine() { for (int i = 0; i < NUM_PARAMS; ++i) prm[(size_t) i] = paramDefs()[(size_t) i].def; }
     void setParam (int i, float v) { prm[(size_t) i] = v; }
@@ -92,7 +89,19 @@ public:
         events.clear();
         std::stable_sort (ev.begin(), ev.end(), [] (auto& a, auto& b) { return a.offset < b.offset; });
 #ifdef AE8_FLIP
-        for (auto& e : ev) e.note = ae8flip::mapPad (e.note, flipMode.load());
+        // Rearrange pads in SLICES layout only (PITCH layout uses notes as semitones).
+        // A note-off always goes to the slice its note-on was mapped to, even if the mode changed meanwhile.
+        {
+            const int mode = (int) prm[FLIP_MODE];
+            const bool slicesLayout = prm[LAYOUT] < 0.5f;
+            const int ns = numSlices.load();
+            for (auto& e : ev)
+            {
+                const int src = std::clamp (e.note, 0, 127);
+                if (e.on) { flipMap[(size_t) src] = slicesLayout ? ae8flip::mapPad (e.note, mode, ns) : e.note; e.note = flipMap[(size_t) src]; }
+                else if (flipMap[(size_t) src] >= 0) { e.note = flipMap[(size_t) src]; flipMap[(size_t) src] = -1; }
+            }
+        }
 #endif
 
         const bool repeatOn = prm[REPEAT] > 0.5f;
@@ -384,6 +393,9 @@ private:
     std::vector<std::pair<int, float>> held;
     std::vector<NoteEvent> events, evBuf;   // events: offline tests only (the plugin feeds pads through MIDI)
     int64_t freeRun = 0;
+#ifdef AE8_FLIP
+    std::array<int, 128> flipMap = [] { std::array<int, 128> m {}; m.fill (-1); return m; }();
+#endif
     struct SVF { double ic1 = 0, ic2 = 0; } svf[2];
     float crushHold[2] {}; double crushPh = 0; float cutSm = 20000;
 };

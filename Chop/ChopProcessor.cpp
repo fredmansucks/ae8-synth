@@ -305,9 +305,6 @@ void ChopProcessor::setCurrentProgram (int index)
     const auto& s = presets();
     if (! juce::isPositiveAndBelow (index, (int) s.size())) return;
     currentProgram = index;
-#ifdef AE8_FLIP
-    engine.flipMode = index;
-#endif
     static const int touched[] = { LAYOUT, VOICE, REPEAT, REPEAT_RATE, TRIPLET, GLIDE, SWING, VEL, CUTOFF, RES, FTYPE, BITS, RATE, DRIVE, WARP };
     std::array<float, NUM_PARAMS> vals {};
     for (int i = 0; i < NUM_PARAMS; ++i) vals[(size_t) i] = paramDefs()[(size_t) i].def;
@@ -374,9 +371,16 @@ void ChopProcessor::setStateInformation (const void* data, int size)
     restoring = true;
     currentProgram = (int) tree.getProperty ("program", 0);
 #ifdef AE8_FLIP
-    engine.flipMode = currentProgram.load();
+    // FLIP sets saved before the Flip Mode control existed stored the mode as the program number.
+    const bool legacyFlip = ! tree.getChildWithProperty ("id", "flipmode").isValid();
+    const int legacyMode = currentProgram.load();
+    if (legacyFlip) currentProgram = 0;
 #endif
     apvts.replaceState (tree);
+#ifdef AE8_FLIP
+    if (legacyFlip && juce::isPositiveAndBelow (legacyMode, 7))
+        if (auto* fp = apvts.getParameter ("flipmode")) fp->setValueNotifyingHost (fp->convertTo0to1 ((float) legacyMode));
+#endif
 
     if (smp.isValid())
     {

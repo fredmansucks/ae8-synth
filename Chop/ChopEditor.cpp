@@ -600,6 +600,14 @@ ChopEditor::ChopEditor (ChopProcessor& p)
     prevBtn.onClick = [this] { proc.setCurrentProgram ((proc.getCurrentProgram() + proc.getNumPrograms() - 1) % proc.getNumPrograms()); };
     nextBtn.onClick = [this] { proc.setCurrentProgram ((proc.getCurrentProgram() + 1) % proc.getNumPrograms()); };
     addAndMakeVisible (presetBox); addAndMakeVisible (prevBtn); addAndMakeVisible (nextBtn);
+#ifdef AE8_FLIP
+    for (auto* m : paramDefs()[FLIP_MODE].choices) flipBox.addItem (juce::String (m).toUpperCase(), flipBox.getNumItems() + 1);
+    flipBox.setColour (juce::ComboBox::textColourId, flux (5));
+    flipBox.setColour (juce::ComboBox::arrowColourId, flux (5));
+    flipBox.setTooltip ("Rearranges which slice each pad plays. Your sound settings stay as they are.");
+    addAndMakeVisible (flipBox);
+    cAtts.push_back (std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment> (proc.apvts, "flipmode", flipBox));
+#endif
 
     scaler.init (*this, kW, kH);
     refreshSlice();
@@ -666,6 +674,9 @@ void ChopEditor::paint (juce::Graphics& g)
 #endif
     g.setFont (tracked (mono (9.5f, true), 0.12f)); g.setColour (kMuted);
     g.drawText ("PROGRAM", presetBox.getBounds().translated (-80, 0).withWidth (72), juce::Justification::centredRight);
+#ifdef AE8_FLIP
+    g.drawText ("FLIP", flipBox.getBounds().translated (-52, 0).withWidth (44), juce::Justification::centredRight);
+#endif
 
     auto s = proc.currentSample();
     const juce::String tag = s ? proc.sampleName.toUpperCase() + "  |  " + juce::String ((double) s->size() / s->sr, 1) + " S" : juce::String ("NO SAMPLE");
@@ -712,6 +723,10 @@ void ChopEditor::resized()
         nextBtn.setBounds (right.removeFromRight (34)); right.removeFromRight (6);
         prevBtn.setBounds (right.removeFromRight (34)); right.removeFromRight (8);
         presetBox.setBounds (right.removeFromRight (280));
+#ifdef AE8_FLIP
+        right.removeFromRight (84);
+        flipBox.setBounds (right.removeFromRight (190));
+#endif
     }
 
     // ---- sample

@@ -10,6 +10,7 @@ class Engine {
 public:
   void prepare(double sampleRate) {
     sr = std::max(8000.0, sampleRate);
+    fresh = true;
     phases = { 0.0, 0.0 }; held = { 0.0f, 0.0f }; low = { 0.0f, 0.0f };
   }
   void set(float rateHz, int bitDepth, float bandwidthHz, float drive, float wet) {
@@ -21,12 +22,18 @@ public:
   }
   void process(float* const* channels, int numChannels, int frames) {
     const float levels = (float)((1 << (bits - 1)) - 1);
-    const float gain = 1.0f + saturation * 9.0f;
-    const float norm = 1.0f / std::tanh(gain);
-    const float a = (float)(1.0 - std::exp(-6.283185307179586 * bandwidth / sr));
     const double increment = rate / sr;
+    // Glide drive, mix and bandwidth toward their targets (~10 ms) so knob moves never click.
+    const float k = (float)(1.0 - std::exp(-1.0 / (0.010 * sr)));
+    const float aTarget = (float)(1.0 - std::exp(-6.283185307179586 * bandwidth / sr));
+    if (fresh) { satS = saturation; mixS = mix; aS = aTarget; fresh = false; }
+    const float sat0 = satS, mix0 = mixS, a0 = aS;
     for (int c = 0; c < std::min(numChannels, 2); ++c) {
+      float sat = sat0, wet = mix0, a = a0;
       for (int i = 0; i < frames; ++i) {
+        sat += k * (saturation - sat); wet += k * (mix - wet); a += k * (aTarget - a);
+        const float gain = 1.0f + sat * 9.0f;
+        const float norm = 1.0f / std::tanh(gain);
         const float dry = channels[c][i];
         if (phases[c] <= 0.0) {
           // Sample-and-hold followed by signed quantization, creating real aliasing.
@@ -37,8 +44,9 @@ public:
         phases[c] -= increment;
         const float distorted = std::tanh(held[c] * gain) * norm;
         low[c] += a * (distorted - low[c]);
-        channels[c][i] = dry * (1.0f - mix) + low[c] * mix;
+        channels[c][i] = dry * (1.0f - wet) + low[c] * wet;
       }
+      satS = sat; mixS = wet; aS = a;
     }
   }
 private:
@@ -47,5 +55,7 @@ private:
   float saturation = 0.2f, mix = 1.0f;
   std::array<double, 2> phases { 0, 0 };
   std::array<float, 2> held { 0, 0 }, low { 0, 0 };
+  float satS = 0.2f, mixS = 1.0f, aS = 0.5f;
+  bool fresh = true;
 };
 } // namespace ae8memory
